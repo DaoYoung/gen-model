@@ -1,6 +1,8 @@
 package handler
 
 type TableColumn struct {
+    // TableSchema string
+    // TableName string
     ColumnName string
     ColumnKey  string
     DataType   string
