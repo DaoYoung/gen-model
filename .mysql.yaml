@@ -1,6 +1,6 @@
 mysql:
-  password: qweasdX9btur000
-  user: scuser
-  host: test6.hljnbw.cn
+  password: root
+  user: root
+  host: localhost
   port: 3306
   database: slim
