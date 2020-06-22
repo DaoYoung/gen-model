@@ -1,0 +1,14 @@
+/.idea/
+/release/*
+*.xml
+*.exe
+config.yml
+*.log
+*.out
+*.svg
+go.mod
+go.sum
+/vendor
+/runtime/app/app.pid
+/runtime/logs/*.log
+*.config.local.yaml

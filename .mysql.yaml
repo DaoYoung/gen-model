@@ -1,0 +1,6 @@
+mysql:
+  password: qweasdX9btur000
+  user: scuser
+  host: test6.hljnbw.cn
+  port: 3306
+  database: slim
