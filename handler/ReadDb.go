@@ -7,17 +7,17 @@ import (
 )
 
 type GenRequest struct {
-	DbName               string
-	TableName            string
+	DbConfig DbConfig
+	SearchTableName            string
 	OutPutPath           string
 	IsLowerCamelCaseJson bool
 }
 
 func (g *GenRequest) getTables() []string {
-	if strings.Contains(g.TableName, "*") {
-		return matchTables(g.DbName, g.TableName)
+	if strings.Contains(g.SearchTableName, "*") {
+		return matchTables(g.DbConfig.Database, g.SearchTableName)
 	}
-	return []string{g.TableName}
+	return []string{g.SearchTableName}
 }
 
 func (g *GenRequest) getOutPutPath() string{
@@ -42,7 +42,7 @@ func Table2struct(genRequest *GenRequest) {
 	dealTable := &(DealTable{})
 	for _, tn := range tables {
 		dealTable.TableName = tn
-		dealTable.Columns = getOneTableColumns(genRequest.DbName, tn)
+		dealTable.Columns = getOneTableColumns(genRequest.DbConfig.Database, tn)
 		structWrite(dealTable, genRequest)
 	}
 }

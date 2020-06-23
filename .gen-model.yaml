@@ -1,0 +1,9 @@
+mysql:
+  host: test6.hljnbw.cn
+  database: slim
+  port: 3306
+  username: scuser
+  password: qweasdX9btur000
+searchTableName: bar # support patten with '*'
+outPutPath: . # file path
+isLowerCamelCaseJson: true # true: model json tag use lower camelcase, like 'camelCase', not like 'CamelCase'

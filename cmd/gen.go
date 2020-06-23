@@ -22,18 +22,17 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/DaoYoung/gen-model/manager/db"
+	"github.com/spf13/viper"
+	"errors"
+	"log"
 )
 
 // genCmd represents the gen command
 var genCmd = &cobra.Command{
 	Use:   "gen",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "gen mysql model",
+	Long: `with mysql connect, generate model file`,
+	Args:cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("gen called"+ strings.Join(args, " "))
 		fmt.Println(genRequest)
@@ -41,27 +40,44 @@ to quickly create a Cobra application.`,
 	},
 }
 
-var genRequest handler.GenRequest
+
 func init() {
 	rootCmd.AddCommand(genCmd)
-	genCmd.Flags().StringVarP(&genRequest.DbName,"db","d","foo", "set your DbName")
-	genCmd.Flags().StringVarP(&genRequest.TableName,"table","t","bar", "set your TableName, support patten with '*'")
-	genCmd.Flags().StringVarP(&genRequest.OutPutPath,"outPutPath","o",".", "set your OutPutPath")
+	genCmd.Flags().StringVarP(&genRequest.SearchTableName,"searchTableName","t","", "set your searchTableName, support patten with '*'")
 	genCmd.Flags().BoolVarP(&genRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
-	genCmd.MarkFlagRequired("db")
-	genCmd.MarkFlagRequired("table")
-	// Here you will define your flags and configuration settings.
+	viper.BindPFlag("searchTableName", rootCmd.Flags().Lookup("searchTableName"))
+	viper.BindPFlag("isLowerCamelCaseJson", rootCmd.Flags().Lookup("isLowerCamelCaseJson"))
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// genCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// genCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+func validArgs() (error) {
+	log.Println(viper.AllKeys())
+	if viper.GetString("mysql.host") == ""{
+		return errors.New("mysql.host is empty")
+	}
+	if viper.GetString("mysql.database") == ""{
+		return errors.New("mysql.database is empty")
+	}
+	if viper.GetString("mysql.username") == ""{
+		return errors.New("mysql.username is empty")
+	}
+	if viper.GetString("mysql.password") == ""{
+		return errors.New("mysql.password is empty")
+	}
+	log.Println(viper.GetString("searchTableName"))
+	if viper.GetString("searchTableName") == ""{
+		return errors.New("tableName is empty")
+	}
+	if viper.GetString("outPutPath") == ""{
+		return errors.New("outPutPath is empty")
+	}
+	return  nil
+}
 func generateModel()  {
+	if err := validArgs();err != nil{
+		log.Println(err)
+		return
+	}
 	db.InitDb()
 	handler.Table2struct(&genRequest)
 }
