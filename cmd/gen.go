@@ -62,7 +62,6 @@ func validArgs() (error) {
 	if viper.GetString("mysql.password") == ""{
 		return errors.New("mysql.password is empty")
 	}
-	log.Println(viper.GetString("searchTableName"))
 	if genRequest.SearchTableName == ""{
 		return errors.New("tableName is empty")
 	}

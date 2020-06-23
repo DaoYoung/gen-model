@@ -1,6 +1,0 @@
-mysql:
-  host: foo
-  database: foo
-  port: 3306
-  username: root
-  password: 

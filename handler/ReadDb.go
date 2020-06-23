@@ -14,6 +14,11 @@ type GenRequest struct {
 	IsLowerCamelCaseJson bool
 }
 
+type genConfig struct {
+	SearchTableName            string
+	OutPutPath           string
+	IsLowerCamelCaseJson bool
+}
 func (g *GenRequest) getTables() []string {
 	if strings.Contains(g.SearchTableName, "*") {
 		return matchTables(g.DbConfig.Database, g.SearchTableName)
