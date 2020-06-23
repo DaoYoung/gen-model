@@ -24,7 +24,7 @@ import (
 // mysqlCmd represents the mysql command
 var mysqlCmd = &cobra.Command{
 	Use:   "mysql",
-	Short: "A brief description of your command",
+	Short: "gen yaml config",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
