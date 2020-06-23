@@ -1,7 +1,7 @@
 package model
 
 import "time"
-
+import "gopkg.in/guregu/null.v3"
 type Merges struct {
 
 id int `gorm:"column:id;primary_key" json:"Id"`
@@ -19,6 +19,4 @@ deleted_at null.Time `gorm:"column:deleted_at" json:"DeletedAt"`}
 
 func (tc *Merges) TableName() string {
     return "merges"
-}erges) TableName() string {
-return "merges"
 }
