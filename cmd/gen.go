@@ -17,6 +17,8 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/DaoYoung/gen-model/handler"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/DaoYoung/gen-model/manager/db"
@@ -33,14 +35,21 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		db.InitDb()
-		fmt.Println("gen called")
+		fmt.Println("gen called"+ strings.Join(args, " "))
+		fmt.Println(genRequest)
+		generateModel()
 	},
 }
 
+var genRequest handler.GenRequest
 func init() {
 	rootCmd.AddCommand(genCmd)
-
+	genCmd.Flags().StringVarP(&genRequest.DbName,"db","d","foo", "set your DbName")
+	genCmd.Flags().StringVarP(&genRequest.TableName,"table","t","bar", "set your TableName, support patten with '*'")
+	genCmd.Flags().StringVarP(&genRequest.OutPutPath,"outPutPath","o",".", "set your OutPutPath")
+	genCmd.Flags().BoolVarP(&genRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
+	genCmd.MarkFlagRequired("db")
+	genCmd.MarkFlagRequired("table")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -50,4 +59,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// genCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func generateModel()  {
+	db.InitDb()
+	handler.Table2struct(&genRequest)
 }

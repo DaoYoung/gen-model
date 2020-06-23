@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/DaoYoung/gen-model/manager/db"
+	"path/filepath"
 	"strings"
 )
 
@@ -9,7 +10,7 @@ type GenRequest struct {
 	DbName               string
 	TableName            string
 	OutPutPath           string
-	IsLowerCamelCaseJson string
+	IsLowerCamelCaseJson bool
 }
 
 func (g *GenRequest) getTables() []string {
@@ -17,6 +18,13 @@ func (g *GenRequest) getTables() []string {
 		return matchTables(g.DbName, g.TableName)
 	}
 	return []string{g.TableName}
+}
+
+func (g *GenRequest) getOutPutPath() string{
+	if g.OutPutPath == "" {
+		g.OutPutPath = "model"
+	}
+	return filepath.Dir(g.OutPutPath)
 }
 
 func matchTables(dbName, tableName string) []string {
@@ -29,7 +37,7 @@ func matchTables(dbName, tableName string) []string {
 	return names
 }
 
-func table2struct(genRequest *GenRequest) {
+func Table2struct(genRequest *GenRequest) {
 	tables := genRequest.getTables()
 	dealTable := &(DealTable{})
 	for _, tn := range tables {

@@ -50,6 +50,7 @@ func structWrite(dealTable *DealTable, genRequest *GenRequest) {
 	paths := strings.Split(genRequest.OutPutPath, "/")
 	packageName := paths[len(paths)-1]
 	fileName := genRequest.OutPutPath + "/" + structName + ".go"
+	log.Println(fileName)
 	fp, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		log.Fatal(err)
