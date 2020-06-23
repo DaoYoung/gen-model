@@ -4,6 +4,7 @@ import (
 	"github.com/DaoYoung/gen-model/manager/db"
 	"path/filepath"
 	"strings"
+	"github.com/spf13/viper"
 )
 
 type GenRequest struct {
@@ -19,7 +20,16 @@ func (g *GenRequest) getTables() []string {
 	}
 	return []string{g.SearchTableName}
 }
-
+func (g *GenRequest) SetDataByViper(){
+	g.SearchTableName = viper.GetString("searchTableName")
+	g.OutPutPath = viper.GetString("outPutPath")
+	g.IsLowerCamelCaseJson = viper.GetBool("isLowerCamelCaseJson")
+	g.DbConfig.Host = viper.GetString("mysql.host")
+	g.DbConfig.Database = viper.GetString("mysql.database")
+	g.DbConfig.Port = viper.GetInt("mysql.port")
+	g.DbConfig.Username = viper.GetString("mysql.username")
+	g.DbConfig.Password = viper.GetString("mysql.password")
+}
 func (g *GenRequest) getOutPutPath() string{
 	if g.OutPutPath == "" {
 		g.OutPutPath = "model"

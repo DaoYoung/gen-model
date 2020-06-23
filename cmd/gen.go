@@ -17,14 +17,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/DaoYoung/gen-model/handler"
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/DaoYoung/gen-model/manager/db"
 	"github.com/spf13/viper"
 	"errors"
 	"log"
+	"github.com/DaoYoung/gen-model/manager/db"
+	"github.com/DaoYoung/gen-model/handler"
 )
 
 // genCmd represents the gen command
@@ -45,13 +45,11 @@ func init() {
 	rootCmd.AddCommand(genCmd)
 	genCmd.Flags().StringVarP(&genRequest.SearchTableName,"searchTableName","t","", "set your searchTableName, support patten with '*'")
 	genCmd.Flags().BoolVarP(&genRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
-	viper.BindPFlag("searchTableName", rootCmd.Flags().Lookup("searchTableName"))
-	viper.BindPFlag("isLowerCamelCaseJson", rootCmd.Flags().Lookup("isLowerCamelCaseJson"))
-
+	viper.BindPFlag("searchTableName", genCmd.Flags().Lookup("searchTableName"))
+	viper.BindPFlag("isLowerCamelCaseJson", genCmd.Flags().Lookup("isLowerCamelCaseJson"))
 }
 
 func validArgs() (error) {
-	log.Println(viper.AllKeys())
 	if viper.GetString("mysql.host") == ""{
 		return errors.New("mysql.host is empty")
 	}
@@ -65,19 +63,23 @@ func validArgs() (error) {
 		return errors.New("mysql.password is empty")
 	}
 	log.Println(viper.GetString("searchTableName"))
-	if viper.GetString("searchTableName") == ""{
+	if genRequest.SearchTableName == ""{
 		return errors.New("tableName is empty")
 	}
-	if viper.GetString("outPutPath") == ""{
+
+	if genRequest.OutPutPath == ""{
 		return errors.New("outPutPath is empty")
 	}
 	return  nil
 }
 func generateModel()  {
+	genRequest.SetDataByViper()
 	if err := validArgs();err != nil{
 		log.Println(err)
 		return
 	}
+	log.Printf("%+v", genRequest)
 	db.InitDb()
 	handler.Table2struct(&genRequest)
 }
+

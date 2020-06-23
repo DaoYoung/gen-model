@@ -19,9 +19,7 @@ import (
     "fmt"
     "os"
     "github.com/spf13/cobra"
-    "github.com/mitchellh/go-homedir"
     "github.com/spf13/viper"
-    "log"
     "github.com/DaoYoung/gen-model/handler"
 )
 
@@ -56,9 +54,8 @@ func init() {
     cobra.OnInitialize(initConfig)
     dir, _ := os.Getwd()
     rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is "+dir+"/"+handler.Yamlfile+".yaml)")
-
     rootCmd.PersistentFlags().StringVar(&genRequest.DbConfig.Host, "host", "localhost", "set DB host")
-    rootCmd.PersistentFlags().StringVarP(&genRequest.DbConfig.Database, "database", "d", "foo", "set your database")
+    rootCmd.PersistentFlags().StringVarP(&genRequest.DbConfig.Database, "database", "d", "", "set your database")
     rootCmd.PersistentFlags().IntVarP(&genRequest.DbConfig.Port, "port", "p", 3306, "set DB port")
     rootCmd.PersistentFlags().StringVarP(&genRequest.DbConfig.Username, "username", "u", "root", "set DB login username")
     rootCmd.PersistentFlags().StringVarP(&genRequest.DbConfig.Password, "password", "w", "", "set DB login password")
@@ -78,10 +75,8 @@ func initConfig() {
         viper.SetConfigFile(cfgFile)
     } else {
         // Find home directory.
-        home, err := homedir.Dir()
-        log.Println("home dir ", home)
-        dir, _ := os.Getwd()
-        log.Println("project dir ", dir)
+        // home, err := homedir.Dir()
+        dir, err := os.Getwd()
         if err != nil {
             fmt.Println(err)
             os.Exit(1)

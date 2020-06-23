@@ -5,6 +5,7 @@ import (
     "os"
     "strings"
     "strconv"
+    "fmt"
 )
 var Yamlfile = ".gen-model"
 type DealTable struct {
@@ -57,12 +58,33 @@ func structWrite(dealTable *DealTable, genRequest *GenRequest) {
         log.Fatal(err)
     }
     defer fp.Close()
-    str := "package " + packageName
-    str += "type " + structName + " struct {"
-    str += "}"
-    str += "func (tc *" + structName + ") TableName() string {return \"" + dealTable.TableName + "\"}"
-
-    _, err = fp.Write([]byte(str))
+    str := "package " + packageName+"\n"
+    str += "type " + structName + " struct {\n"
+    for _,column := range *dealTable.Columns {
+        log.Printf("column %+v", column)
+        fieldType := mysqlTypeToGoType(column.DataType, column.IsNull(), true)
+        var annotations []string
+        gormAnnotation := true
+        jsonAnnotation := true
+        if gormAnnotation {
+            primary := ""
+            if column.ColumnKey == "PRI" {
+                primary = ";primary_key"
+            }
+            annotations = append(annotations, fmt.Sprintf("gorm:\"column:%s%s\"", column.ColumnName, primary))
+        }
+        if jsonAnnotation {
+            annotations = append(annotations, fmt.Sprintf("json:\"%s\"", camelString(column.ColumnName)))
+        }
+        str += fmt.Sprintf("\n%s %s `%s`",
+            column.ColumnName,
+            fieldType,
+            strings.Join(annotations, " "))
+    }
+    str += "}\n\n"
+    str += "func (tc *" + structName + ") TableName() string {\n    return \"" + dealTable.TableName + "\"\n}"
+    strmodel := fmt.Sprintf("%s", str)
+    _, err = fp.Write([]byte(strmodel))
     if err != nil {
         log.Fatal(err)
     }
@@ -103,4 +125,75 @@ func mkdir(path string)  {
 func isExist(path string) bool {
     _, err := os.Stat(path)
     return err == nil || os.IsExist(err)
+}
+
+// Constants for return types of golang
+const (
+    golangByteArray  = "[]byte"
+    gureguNullInt    = "null.Int"
+    sqlNullInt       = "sql.NullInt64"
+    golangInt        = "int"
+    golangInt64      = "int64"
+    gureguNullFloat  = "null.Float"
+    sqlNullFloat     = "sql.NullFloat64"
+    golangFloat      = "float"
+    golangFloat32    = "float32"
+    golangFloat64    = "float64"
+    gureguNullString = "null.String"
+    sqlNullString    = "sql.NullString"
+    gureguNullTime   = "null.Time"
+    golangTime       = "time.Time"
+)
+
+func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) string {
+    switch mysqlType {
+    case "tinyint", "int", "smallint", "mediumint":
+        if nullable {
+            if gureguTypes {
+                return gureguNullInt
+            }
+            return sqlNullInt
+        }
+        return golangInt
+    case "bigint":
+        if nullable {
+            if gureguTypes {
+                return gureguNullInt
+            }
+            return sqlNullInt
+        }
+        return golangInt64
+    case "char", "enum", "varchar", "longtext", "mediumtext", "text", "tinytext", "json":
+        if nullable {
+            if gureguTypes {
+                return gureguNullString
+            }
+            return sqlNullString
+        }
+        return "string"
+    case "date", "datetime", "time", "timestamp":
+        if nullable && gureguTypes {
+            return gureguNullTime
+        }
+        return golangTime
+    case "decimal", "double":
+        if nullable {
+            if gureguTypes {
+                return gureguNullFloat
+            }
+            return sqlNullFloat
+        }
+        return golangFloat64
+    case "float":
+        if nullable {
+            if gureguTypes {
+                return gureguNullFloat
+            }
+            return sqlNullFloat
+        }
+        return golangFloat32
+    case "binary", "blob", "longblob", "mediumblob", "varbinary":
+        return golangByteArray
+    }
+    return ""
 }
