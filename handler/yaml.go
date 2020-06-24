@@ -23,6 +23,7 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     content += "gen:\n"
     content += "  searchTableName: " + cmdRequest.Gen.SearchTableName + " # support patten with '*'\n"
     content += "  outPutPath: " + cmdRequest.Gen.OutPutPath + " # file path\n"
+    content += "  modelSuffix: " + cmdRequest.Gen.ModelSuffix + " # model name suffix\n"
     content += "  isLowerCamelCaseJson: " + strconv.FormatBool(cmdRequest.Gen.IsLowerCamelCaseJson) + " # true: model json tag use lower camelcase, like 'camelCase', not like 'CamelCase'\n"
     content += "  hasGormTag: " + strconv.FormatBool(true) + " # gorm tag, `gorm:\"column:name\"`\n"
     content += "  hasJsonTag: " + strconv.FormatBool(true) + " # json tag, `json:\"age\"`\n"
