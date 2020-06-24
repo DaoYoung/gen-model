@@ -31,8 +31,8 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     fileName := cmdRequest.getOutPutPath() + "/" + YamlFile + ".yaml"
     fileName =filepath.FromSlash(fileName)
     log.Println("GenConfigYaml: ", fileName)
-    if isExist(fileName) && !viper.GetBool("force-over") {
-        fmt.Println("you have config file: " + filepath.FromSlash(fileName) + ", \nset falg --force-over=true if you want cover")
+    if isExist(fileName) && !viper.GetBool("force-cover") {
+        fmt.Println("you have config file: " + filepath.FromSlash(fileName) + ", \nset falg --force-cover=true if you want cover")
         os.Exit(1)
     }
     fmt.Print("\ncreate yaml " + fileName)

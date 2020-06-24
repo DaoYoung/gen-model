@@ -1,9 +1,9 @@
 mysql:
-  host: test6.hljnbw.cn
+  host: localhost
   database: slim
   port: 3306
-  username: scuser
-  password: qweasdX9btur000
+  username: root
+  password: root
 gen:
   searchTableName: merge # support patten with '*'
   outPutPath: model # file path

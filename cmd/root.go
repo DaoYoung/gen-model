@@ -64,8 +64,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasGormTag, "hasGormTag", "g", true, "gorm tag")
 	rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasJsonTag, "hasJsonTag", "j", true, "gorm tag")
 	rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasGureguNullPackage, "hasGureguNullPackage", "n", true, "have package: \"gopkg.in/guregu/null.v3\"")
-	rootCmd.PersistentFlags().BoolP("force-over","f",false, "force over, if persist file exist")
-	flagBindviper(rootCmd, true,"force-over","force-over")
+	rootCmd.PersistentFlags().BoolP("force-cover","f",false, "force over, if persist file exist")
+	flagBindviper(rootCmd, true,"force-cover","force-cover")
 	flagBindviper(rootCmd, true,"host","mysql.host")
 	flagBindviper(rootCmd, true,"database","mysql.database")
 	flagBindviper(rootCmd, true,"port","mysql.port")
@@ -75,6 +75,7 @@ func init() {
 	flagBindviper(rootCmd, true,"hasGormTag","gen.hasGormTag")
 	flagBindviper(rootCmd, true,"hasJsonTag","gen.hasJsonTag")
 	flagBindviper(rootCmd, true,"hasGureguNullPackage","gen.hasGureguNullPackage")
+	handler.Welcome()
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -115,5 +116,6 @@ func flagBindviper(cmd *cobra.Command, isPersistentFlag bool, flagKey, viperKey 
 		log.Println(err)
 		os.Exit(1)
 	}
-
 }
+
+

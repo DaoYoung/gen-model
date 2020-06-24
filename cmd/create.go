@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"github.com/DaoYoung/gen-model/handler"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -68,8 +69,13 @@ func validArgs() error {
 }
 
 func generateModel()  {
+	defer func(){
+		if r := recover(); r != nil {
+			fmt.Println(r)
+		}
+	}()
 	cmdRequest.SetDataByViper()
-	log.Printf("%+v", cmdRequest)
+	//log.Printf("%+v", cmdRequest)
 	if err := validArgs();err != nil{
 		log.Println(err)
 		os.Exit(1)
