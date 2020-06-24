@@ -6,6 +6,7 @@ import (
     "log"
     "fmt"
     "strings"
+    _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 // Constants for return types of golang

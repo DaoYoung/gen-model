@@ -34,4 +34,6 @@ var persistCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(persistCmd)
+	persistCmd.Flags().BoolP("force-over","f",false, "force over, if persist file exist")
+	flagBindviper(persistCmd, false,"force-over","force-over")
 }

@@ -18,7 +18,6 @@ package cmd
 import (
 	"errors"
 	"github.com/DaoYoung/gen-model/handler"
-	"github.com/DaoYoung/gen-model/manager/db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
@@ -38,10 +37,10 @@ var createCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(createCmd)
-	createCmd.Flags().StringVarP(&cmdRequest.SearchTableName,"searchTableName","t","", "set your searchTableName, support patten with '*'")
-	createCmd.Flags().BoolVarP(&cmdRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
-	flagBindviper(createCmd, false,"searchTableName","searchTableName")
-	flagBindviper(createCmd, false,"isLowerCamelCaseJson","isLowerCamelCaseJson")
+	createCmd.Flags().StringVarP(&cmdRequest.Gen.SearchTableName,"searchTableName","s","", "set your searchTableName, support patten with '*'")
+	createCmd.Flags().BoolVarP(&cmdRequest.Gen.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
+	flagBindviper(createCmd, false,"searchTableName","gen.searchTableName")
+	flagBindviper(createCmd, false,"isLowerCamelCaseJson","gen.isLowerCamelCaseJson")
 }
 
 func validArgs() error {
@@ -57,15 +56,16 @@ func validArgs() error {
 	if viper.GetString("mysql.password") == ""{
 		return errors.New("mysql.password is empty")
 	}
-	if cmdRequest.SearchTableName == ""{
+	if cmdRequest.Gen.SearchTableName == ""{
 		return errors.New("tableName is empty")
 	}
 
-	if cmdRequest.OutPutPath == ""{
+	if cmdRequest.Gen.OutPutPath == ""{
 		return errors.New("outPutPath is empty")
 	}
 	return  nil
 }
+
 func generateModel()  {
 	cmdRequest.SetDataByViper()
 	log.Printf("%+v", cmdRequest)
@@ -73,7 +73,7 @@ func generateModel()  {
 		log.Println(err)
 		os.Exit(1)
 	}
-	if err := db.InitDb();err != nil{
+	if err := handler.InitDb();err != nil{
 		log.Println(err)
 		os.Exit(1)
 	}

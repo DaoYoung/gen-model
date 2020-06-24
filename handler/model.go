@@ -20,10 +20,14 @@ func Table2struct(cmdRequest *CmdRequest) {
     for _, tn := range tables {
         dealTable.TableName = tn
         dealTable.Columns = getOneTableColumns(cmdRequest.Db.Database, tn)
+        if len(*dealTable.Columns) == 0 {
+            log.Println("empty table: "+tn)
+            continue
+        }
         structWrite(dealTable, cmdRequest)
     }
+    os.Exit(0)
 }
-
 
 func columnProcess(columns *[]SchemaColumn, hasGormAnnotation, hasJsonAnnotation, hasGureguNullPackage bool) *columnProcessor {
     columnProcessor := &(columnProcessor{})
@@ -55,7 +59,7 @@ func columnProcess(columns *[]SchemaColumn, hasGormAnnotation, hasJsonAnnotation
         for _, p := range importPackages {
             columnProcessor.ImportSegment += "    \"" + p + "\"\n"
         }
-        columnProcessor.ImportSegment += ")"
+        columnProcessor.ImportSegment += ")\n"
     }
     return columnProcessor
 }
@@ -77,7 +81,7 @@ func structWrite(dealTable *dealTable, cmdRequest *CmdRequest) {
     if absPath == appPath {
         packageName = "main"
     } else {
-        _, packageName = filepath.Split(fileName)
+        _, packageName = filepath.Split(absPath)
 
     }
     fp, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0755)

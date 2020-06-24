@@ -46,9 +46,9 @@ func (g *CmdRequest) getOutPutPath() string {
 }
 
 func (g *CmdRequest) SetDataByViper() {
-    g.Gen.SearchTableName = viper.GetString("searchTableName")
-    g.Gen.OutPutPath = viper.GetString("outPutPath")
-    g.Gen.IsLowerCamelCaseJson = viper.GetBool("isLowerCamelCaseJson")
+    g.Gen.SearchTableName = viper.GetString("gen.searchTableName")
+    g.Gen.OutPutPath = viper.GetString("gen.outPutPath")
+    g.Gen.IsLowerCamelCaseJson = viper.GetBool("gen.isLowerCamelCaseJson")
     g.Db.Host = viper.GetString("mysql.host")
     g.Db.Database = viper.GetString("mysql.database")
     g.Db.Port = viper.GetInt("mysql.port")
