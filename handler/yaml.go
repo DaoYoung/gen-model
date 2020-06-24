@@ -6,6 +6,7 @@ import (
     "os"
     "github.com/spf13/viper"
     "path/filepath"
+    "fmt"
 )
 
 var YamlFile = ".gen-model"
@@ -30,7 +31,7 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     fileName =filepath.FromSlash(fileName)
     log.Println("GenConfigYaml: ", fileName)
     if isExist(fileName) && !viper.GetBool("force-over") {
-        log.Println("you have config file: " + filepath.FromSlash(fileName) + ", \nset falg --force-over=true if you want cover")
+        fmt.Println("you have config file: " + filepath.FromSlash(fileName) + ", \nset falg --force-over=true if you want cover")
         os.Exit(1)
     }
     writeFile(fileName, content)

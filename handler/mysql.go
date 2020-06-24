@@ -3,7 +3,6 @@ package handler
 import (
     "github.com/jinzhu/gorm"
     "github.com/spf13/viper"
-    "log"
     "fmt"
     "strings"
     _ "github.com/jinzhu/gorm/dialects/mysql"
@@ -98,7 +97,7 @@ func InitDb() error {
         "information_schema",
     )
     if DbSchema, err = gorm.Open("mysql", dsn); err != nil {
-        log.Println("dns",dsn)
+        fmt.Println("dns",dsn)
         panic(err)
     }
     DbSchema.LogMode(true)

@@ -4,7 +4,9 @@ import (
     "strings"
     "os"
     "unicode"
-    "log"
+    "github.com/spf13/viper"
+    "fmt"
+    "path/filepath"
 )
 
 func camelString(s string) string {
@@ -59,17 +61,29 @@ func isExist(path string) bool {
 }
 
 func writeFile(fileName, content string)  {
+    fmt.Print("\ncreate " + fileName)
     f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0755)
     f.Truncate(0)
     defer f.Close()
     if err != nil {
-        log.Println(err.Error())
+        fmt.Print(" failed")
+        fmt.Println(err.Error())
         os.Exit(1)
     } else {
         _, err = f.Write([]byte(content))
         if err != nil {
-            log.Fatal(err)
+            fmt.Print(" failed")
+            fmt.Println(err.Error())
             os.Exit(1)
         }
+        fmt.Print(" success")
     }
+}
+func checkFile(fileName string) string {
+    fileName = filepath.FromSlash(fileName)
+    if isExist(fileName) && !viper.GetBool("force-over") {
+        fmt.Println("you have config file: " + fileName + ", \nset falg --force-over=true if you want cover")
+        os.Exit(1)
+    }
+    return fileName
 }

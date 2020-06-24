@@ -4,8 +4,8 @@ import (
     "github.com/spf13/viper"
     "strings"
     "path/filepath"
-    "log"
     "os"
+    "fmt"
 )
 
 type CmdRequest struct {
@@ -54,15 +54,15 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
     var err error
     var appPath string
     if absPath, err = filepath.Abs(g.Gen.OutPutPath);err != nil {
-        log.Println(err)
+        fmt.Println(err)
         os.Exit(1)
     }
     if !isExist(absPath) {
-        log.Println("OutPutPath not exist: " + absPath)
+        fmt.Println("OutPutPath not exist: " + absPath)
         os.Exit(1)
     }
     if appPath, err = os.Getwd(); err != nil {
-        log.Println(err)
+        fmt.Println(err)
         os.Exit(1)
     }
     if absPath == appPath {

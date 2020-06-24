@@ -64,6 +64,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasGormTag, "hasGormTag", "g", true, "gorm tag")
 	rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasJsonTag, "hasJsonTag", "j", true, "gorm tag")
 	rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasGureguNullPackage, "hasGureguNullPackage", "n", true, "have package: \"gopkg.in/guregu/null.v3\"")
+	rootCmd.PersistentFlags().BoolP("force-over","f",false, "force over, if persist file exist")
+	flagBindviper(rootCmd, true,"force-over","force-over")
 	flagBindviper(rootCmd, true,"host","mysql.host")
 	flagBindviper(rootCmd, true,"database","mysql.database")
 	flagBindviper(rootCmd, true,"port","mysql.port")

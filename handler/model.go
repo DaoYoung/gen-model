@@ -2,7 +2,6 @@ package handler
 
 import (
     "fmt"
-    "log"
     "os"
     "sort"
     "strings"
@@ -20,7 +19,7 @@ func Table2struct(cmdRequest *CmdRequest) {
         dealTable.TableName = tn
         dealTable.Columns = getOneTableColumns(cmdRequest.Db.Database, tn)
         if len(*dealTable.Columns) == 0 {
-            log.Println("empty table: "+tn)
+            fmt.Println("empty table: " + tn)
             continue
         }
         structWrite(dealTable, cmdRequest)
@@ -28,9 +27,25 @@ func Table2struct(cmdRequest *CmdRequest) {
     os.Exit(0)
 }
 
+func structWrite(dealTable *dealTable, cmdRequest *CmdRequest) {
+    structName := camelString(dealTable.TableName)
+    absOutPutPath, packageName := cmdRequest.getAbsPathAndPackageName()
+    fileName := checkFile(absOutPutPath + "/" + structName + ".go")
+    str := "package " + packageName + "\n\n"
+    columnProcessor := columnProcess(dealTable.Columns, cmdRequest)
+    str += columnProcessor.ImportSegment
+    str += "\ntype " + structName + " struct {"
+    str += columnProcessor.AttrSegment
+    str += "\n}\n\n"
+    str += "func (model *" + structName + ") TableName() string {\n    return \"" + dealTable.TableName + "\"\n}"
+    strmodel := fmt.Sprintf("%s", str)
+    writeFile(fileName, strmodel)
+}
+
 func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProcessor {
     columnProcessor := &(columnProcessor{})
     var importPackages []string
+    var primary string
     for _, column := range *columns {
         var structTags []string
         structAttr := camelString(column.ColumnName)
@@ -39,14 +54,13 @@ func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProce
             importPackages = append(importPackages, needPackage)
         }
         if cmdRequest.Gen.HasGormTag {
-            primary := ""
+            primary = ""
             if column.ColumnKey == "PRI" {
                 primary = ";primary_key"
             }
             structTags = append(structTags, fmt.Sprintf("gorm:\"column:%s%s\"", column.ColumnName, primary))
         }
         if cmdRequest.Gen.HasJsonTag {
-
             structTags = append(structTags, fmt.Sprintf("json:\"%s\"", lcfirst(structAttr)))
         }
         columnProcessor.AttrSegment += fmt.Sprintf("\n    %s %s `%s`",
@@ -65,17 +79,3 @@ func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProce
     return columnProcessor
 }
 
-func structWrite(dealTable *dealTable, cmdRequest *CmdRequest) {
-    structName := camelString(dealTable.TableName)
-    absOutPutPath,packageName := cmdRequest.getAbsPathAndPackageName()
-    fileName := absOutPutPath + "/" + structName + ".go"
-    str := "package " + packageName + "\n\n"
-    columnProcessor := columnProcess(dealTable.Columns, cmdRequest)
-    str += columnProcessor.ImportSegment
-    str += "\ntype " + structName + " struct {"
-    str += columnProcessor.AttrSegment
-    str += "\n}\n\n"
-    str += "func (model *" + structName + ") TableName() string {\n    return \"" + dealTable.TableName + "\"\n}"
-    strmodel := fmt.Sprintf("%s", str)
-    writeFile(fileName, strmodel)
-}
