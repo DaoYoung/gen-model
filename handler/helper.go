@@ -60,24 +60,20 @@ func isExist(path string) bool {
     return err == nil || os.IsExist(err)
 }
 
-func writeFile(fileName, content string)  {
-    fmt.Print("\ncreate " + fileName)
+func writeFile(fileName, content string) error {
+    var err error
     f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0755)
     f.Truncate(0)
     defer f.Close()
     if err != nil {
-        fmt.Print(" failed")
-        fmt.Println(err.Error())
-        os.Exit(1)
+        return err
     } else {
         _, err = f.Write([]byte(content))
         if err != nil {
-            fmt.Print(" failed")
-            fmt.Println(err.Error())
-            os.Exit(1)
+            return err
         }
-        fmt.Print(" success")
     }
+    return nil
 }
 func checkFile(fileName string) string {
     fileName = filepath.FromSlash(fileName)

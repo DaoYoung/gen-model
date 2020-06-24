@@ -6,11 +6,13 @@ import (
     "path/filepath"
     "os"
     "fmt"
+    "sync"
 )
 
 type CmdRequest struct {
     Db  dbConfig
     Gen genConfig
+    Wg sync.WaitGroup
 }
 
 type dbConfig struct {

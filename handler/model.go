@@ -11,7 +11,6 @@ type columnProcessor struct {
     AttrSegment   string
     ImportSegment string
 }
-
 func Table2struct(cmdRequest *CmdRequest) {
     tables := cmdRequest.getTables()
     dealTable := &(dealTable{})
@@ -22,8 +21,10 @@ func Table2struct(cmdRequest *CmdRequest) {
             fmt.Println("empty table: " + tn)
             continue
         }
-        structWrite(dealTable, cmdRequest)
+        cmdRequest.Wg.Add(1)
+        go structWrite(dealTable, cmdRequest)
     }
+    cmdRequest.Wg.Wait()
     os.Exit(0)
 }
 
@@ -39,7 +40,15 @@ func structWrite(dealTable *dealTable, cmdRequest *CmdRequest) {
     str += "\n}\n\n"
     str += "func (model *" + structName + ") TableName() string {\n    return \"" + dealTable.TableName + "\"\n}"
     strmodel := fmt.Sprintf("%s", str)
-    writeFile(fileName, strmodel)
+    defer cmdRequest.Wg.Done()
+    fmt.Print("\ncreate model " + fileName)
+    err := writeFile(fileName, strmodel)
+    if err != nil {
+        fmt.Print(" failed/n")
+        fmt.Println(err.Error())
+    }else{
+        fmt.Print(" success")
+    }
 }
 
 func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProcessor {

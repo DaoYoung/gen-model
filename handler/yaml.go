@@ -34,5 +34,13 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
         fmt.Println("you have config file: " + filepath.FromSlash(fileName) + ", \nset falg --force-over=true if you want cover")
         os.Exit(1)
     }
-    writeFile(fileName, content)
+    fmt.Print("\ncreate yaml " + fileName)
+    err := writeFile(fileName, content)
+    if err != nil {
+        fmt.Print(" failed/n")
+        fmt.Println(err.Error())
+        os.Exit(1)
+    }
+    fmt.Print(" success")
+    os.Exit(0)
 }
