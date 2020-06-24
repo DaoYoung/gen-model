@@ -44,7 +44,7 @@ func init() {
 	flagBindviper(createCmd, false,"isLowerCamelCaseJson","isLowerCamelCaseJson")
 }
 
-func validArgs() (error) {
+func validArgs() error {
 	if viper.GetString("mysql.host") == ""{
 		return errors.New("mysql.host is empty")
 	}
