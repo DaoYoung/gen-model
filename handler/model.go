@@ -29,7 +29,7 @@ func Table2struct(cmdRequest *CmdRequest) {
 }
 
 func structWrite(dealTable dealTable, cmdRequest *CmdRequest) {
-    structName := camelString(dealTable.TableName)
+    structName := camelString(dealTable.TableName+cmdRequest.Gen.ModelSuffix)
     absOutPutPath, packageName := cmdRequest.getAbsPathAndPackageName()
     fileName := checkFile(absOutPutPath + "/" + structName + ".go")
     str := "package " + packageName + "\n\n"

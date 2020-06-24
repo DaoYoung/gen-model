@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type TaskTemplateSchedules struct {
+type TaskTemplateSchedulesVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     TemplateId int `gorm:"column:template_id" json:"templateId"`
     DeadlineAfterTaskStart int `gorm:"column:deadline_after_task_start" json:"deadlineAfterTaskStart"`
@@ -19,6 +19,6 @@ type TaskTemplateSchedules struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *TaskTemplateSchedules) TableName() string {
+func (model *TaskTemplateSchedulesVO) TableName() string {
     return "task_template_schedules"
 }

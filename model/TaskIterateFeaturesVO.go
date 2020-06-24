@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type TaskIterateFeatures struct {
+type TaskIterateFeaturesVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     Title string `gorm:"column:title" json:"title"`
     Description string `gorm:"column:description" json:"description"`
@@ -18,6 +18,6 @@ type TaskIterateFeatures struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *TaskIterateFeatures) TableName() string {
+func (model *TaskIterateFeaturesVO) TableName() string {
     return "task_iterate_features"
 }

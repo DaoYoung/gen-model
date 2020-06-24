@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type MergeRequests struct {
+type MergeRequestsVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     MergeId int `gorm:"column:merge_id" json:"mergeId"`
     ReqMethod string `gorm:"column:req_method" json:"reqMethod"`
@@ -16,6 +16,6 @@ type MergeRequests struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *MergeRequests) TableName() string {
+func (model *MergeRequestsVO) TableName() string {
     return "merge_requests"
 }

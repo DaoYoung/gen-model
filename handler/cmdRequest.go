@@ -21,6 +21,7 @@ type dbConfig struct {
     Username string
     Password string
     Port     int
+
 }
 
 type genConfig struct {
@@ -30,6 +31,7 @@ type genConfig struct {
     HasGormTag           bool // gorm tag, `gorm:"column:name"`
     HasJsonTag           bool // json tag, `json:"age"`
     HasGureguNullPackage bool // have package: "gopkg.in/guregu/null.v3"
+    ModelSuffix string //模型后缀
 }
 
 func (g *CmdRequest) getTables() []string {
@@ -79,6 +81,7 @@ func (g *CmdRequest) SetDataByViper() {
     g.Gen.SearchTableName = viper.GetString("gen.searchTableName")
     g.Gen.OutPutPath = viper.GetString("gen.outPutPath")
     g.Gen.IsLowerCamelCaseJson = viper.GetBool("gen.isLowerCamelCaseJson")
+    g.Gen.ModelSuffix = viper.GetString("gen.modelSuffix")
     g.Db.Host = viper.GetString("mysql.host")
     g.Db.Database = viper.GetString("mysql.database")
     g.Db.Port = viper.GetInt("mysql.port")

@@ -4,7 +4,7 @@ import (
     "gopkg.in/guregu/null.v3"
 )
 
-type UserTokens struct {
+type UserTokensVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     CreatedAt null.Time `gorm:"column:created_at" json:"createdAt"`
     UpdatedAt null.Time `gorm:"column:updated_at" json:"updatedAt"`
@@ -13,6 +13,6 @@ type UserTokens struct {
     Token null.String `gorm:"column:token" json:"token"`
 }
 
-func (model *UserTokens) TableName() string {
+func (model *UserTokensVO) TableName() string {
     return "user_tokens"
 }

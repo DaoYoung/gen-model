@@ -5,18 +5,16 @@ import (
     "time"
 )
 
-type TaskIterateFeatureResources struct {
+type TaskIteratesVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
-    FeatureId int `gorm:"column:feature_id" json:"featureId"`
     Title null.String `gorm:"column:title" json:"title"`
-    LinkUrl null.String `gorm:"column:link_url" json:"linkUrl"`
-    AuthorId int `gorm:"column:author_id" json:"authorId"`
-    DocId int `gorm:"column:doc_id" json:"docId"`
+    StartLine time.Time `gorm:"column:start_line" json:"startLine"`
+    Deadline time.Time `gorm:"column:deadline" json:"deadline"`
     CreatedAt time.Time `gorm:"column:created_at" json:"createdAt"`
     UpdatedAt time.Time `gorm:"column:updated_at" json:"updatedAt"`
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *TaskIterateFeatureResources) TableName() string {
-    return "task_iterate_feature_resources"
+func (model *TaskIteratesVO) TableName() string {
+    return "task_iterates"
 }

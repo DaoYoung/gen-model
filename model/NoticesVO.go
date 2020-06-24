@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type Notices struct {
+type NoticesVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     UserId null.Int `gorm:"column:user_id" json:"userId"`
     TriggerUserId null.Int `gorm:"column:trigger_user_id" json:"triggerUserId"`
@@ -16,6 +16,6 @@ type Notices struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *Notices) TableName() string {
+func (model *NoticesVO) TableName() string {
     return "notices"
 }

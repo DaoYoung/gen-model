@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type Users struct {
+type UsersVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     GitId int `gorm:"column:git_id" json:"gitId"`
     Role int `gorm:"column:role" json:"role"`
@@ -22,6 +22,6 @@ type Users struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *Users) TableName() string {
+func (model *UsersVO) TableName() string {
     return "users"
 }

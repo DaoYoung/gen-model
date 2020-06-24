@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type RequestStatistics struct {
+type RequestStatisticsVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     MergeId int `gorm:"column:merge_id" json:"mergeId"`
     DevEnv string `gorm:"column:dev_env" json:"devEnv"`
@@ -19,6 +19,6 @@ type RequestStatistics struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *RequestStatistics) TableName() string {
+func (model *RequestStatisticsVO) TableName() string {
     return "request_statistics"
 }

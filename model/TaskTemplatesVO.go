@@ -5,16 +5,16 @@ import (
     "time"
 )
 
-type Teams struct {
+type TaskTemplatesVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
-    ParentId int `gorm:"column:parent_id" json:"parentId"`
-    Title null.String `gorm:"column:title" json:"title"`
-    IsExecute int `gorm:"column:is_execute" json:"isExecute"`
+    AuthorId int `gorm:"column:author_id" json:"authorId"`
+    Title string `gorm:"column:title" json:"title"`
+    AcceptId int `gorm:"column:accept_id" json:"acceptId"`
     CreatedAt time.Time `gorm:"column:created_at" json:"createdAt"`
     UpdatedAt time.Time `gorm:"column:updated_at" json:"updatedAt"`
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *Teams) TableName() string {
-    return "teams"
+func (model *TaskTemplatesVO) TableName() string {
+    return "task_templates"
 }

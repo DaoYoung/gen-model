@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type Tasks struct {
+type TasksVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     TemplateId int `gorm:"column:template_id" json:"templateId"`
     Title string `gorm:"column:title" json:"title"`
@@ -23,6 +23,6 @@ type Tasks struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *Tasks) TableName() string {
+func (model *TasksVO) TableName() string {
     return "tasks"
 }

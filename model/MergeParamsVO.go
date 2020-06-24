@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type MergeParams struct {
+type MergeParamsVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     MergeId int `gorm:"column:merge_id" json:"mergeId"`
     MergeField null.String `gorm:"column:merge_field" json:"mergeField"`
@@ -20,6 +20,6 @@ type MergeParams struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *MergeParams) TableName() string {
+func (model *MergeParamsVO) TableName() string {
     return "merge_params"
 }

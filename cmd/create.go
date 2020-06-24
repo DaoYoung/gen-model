@@ -38,9 +38,11 @@ var createCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(createCmd)
 	createCmd.Flags().StringVarP(&cmdRequest.Gen.SearchTableName,"searchTableName","s","", "set your searchTableName, support patten with '*'")
+	createCmd.Flags().StringVarP(&cmdRequest.Gen.ModelSuffix,"modelSuffix","m","", "model suffix")
 	createCmd.Flags().BoolVarP(&cmdRequest.Gen.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
 	flagBindviper(createCmd, false,"searchTableName","gen.searchTableName")
 	flagBindviper(createCmd, false,"isLowerCamelCaseJson","gen.isLowerCamelCaseJson")
+	flagBindviper(createCmd, false,"modelSuffix","gen.modelSuffix")
 }
 
 func validArgs() error {

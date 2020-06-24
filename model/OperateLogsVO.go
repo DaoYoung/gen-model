@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type OperateLogs struct {
+type OperateLogsVO struct {
     Id int `gorm:"column:id;primary_key" json:"id"`
     AuthorId int `gorm:"column:author_id" json:"authorId"`
     MergeId int `gorm:"column:merge_id" json:"mergeId"`
@@ -16,6 +16,6 @@ type OperateLogs struct {
     DeletedAt null.Time `gorm:"column:deleted_at" json:"deletedAt"`
 }
 
-func (model *OperateLogs) TableName() string {
+func (model *OperateLogsVO) TableName() string {
     return "operate_logs"
 }
