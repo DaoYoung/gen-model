@@ -4,7 +4,6 @@ import (
     "fmt"
     "log"
     "os"
-    "path/filepath"
     "sort"
     "strings"
 )
@@ -29,29 +28,31 @@ func Table2struct(cmdRequest *CmdRequest) {
     os.Exit(0)
 }
 
-func columnProcess(columns *[]SchemaColumn, hasGormAnnotation, hasJsonAnnotation, hasGureguNullPackage bool) *columnProcessor {
+func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProcessor {
     columnProcessor := &(columnProcessor{})
     var importPackages []string
     for _, column := range *columns {
-        var annotations []string
-        fieldType, needPackage := mysqlTypeToGoType(column.DataType, column.IsNull(), hasGureguNullPackage)
+        var structTags []string
+        structAttr := camelString(column.ColumnName)
+        fieldType, needPackage := mysqlTypeToGoType(column.DataType, column.IsNull(), cmdRequest.Gen.HasGureguNullPackage)
         if needPackage != "" && !containString(importPackages, needPackage) {
             importPackages = append(importPackages, needPackage)
         }
-        if hasGormAnnotation {
+        if cmdRequest.Gen.HasGormTag {
             primary := ""
             if column.ColumnKey == "PRI" {
                 primary = ";primary_key"
             }
-            annotations = append(annotations, fmt.Sprintf("gorm:\"column:%s%s\"", column.ColumnName, primary))
+            structTags = append(structTags, fmt.Sprintf("gorm:\"column:%s%s\"", column.ColumnName, primary))
         }
-        if hasJsonAnnotation {
-            annotations = append(annotations, fmt.Sprintf("json:\"%s\"", camelString(column.ColumnName)))
+        if cmdRequest.Gen.HasJsonTag {
+
+            structTags = append(structTags, fmt.Sprintf("json:\"%s\"", lcfirst(structAttr)))
         }
         columnProcessor.AttrSegment += fmt.Sprintf("\n    %s %s `%s`",
-            camelString(column.ColumnName),
+            structAttr,
             fieldType,
-            strings.Join(annotations, " "))
+            strings.Join(structTags, " "))
     }
     if len(importPackages) > 0 {
         sort.Strings(importPackages)
@@ -66,43 +67,15 @@ func columnProcess(columns *[]SchemaColumn, hasGormAnnotation, hasJsonAnnotation
 
 func structWrite(dealTable *dealTable, cmdRequest *CmdRequest) {
     structName := camelString(dealTable.TableName)
-    absPath, err := filepath.Abs(cmdRequest.Gen.OutPutPath)
-    if err != nil {
-        log.Println("error OutPutPath: " + cmdRequest.Gen.OutPutPath)
-        os.Exit(0)
-    }
-    if !isExist(absPath) {
-        log.Println("OutPutPath not exist: " + absPath)
-        os.Exit(0)
-    }
-    packageName := ""
-    appPath, err := os.Getwd()
-    fileName := absPath + "/" + structName + ".go"
-    if absPath == appPath {
-        packageName = "main"
-    } else {
-        _, packageName = filepath.Split(absPath)
-
-    }
-    fp, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0755)
-    fp.Truncate(0)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer fp.Close()
+    absOutPutPath,packageName := cmdRequest.getAbsPathAndPackageName()
+    fileName := absOutPutPath + "/" + structName + ".go"
     str := "package " + packageName + "\n\n"
-
-    gormAnnotation := true
-    jsonAnnotation := true
-    columnProcessor := columnProcess(dealTable.Columns, gormAnnotation, jsonAnnotation, true)
+    columnProcessor := columnProcess(dealTable.Columns, cmdRequest)
     str += columnProcessor.ImportSegment
     str += "\ntype " + structName + " struct {"
     str += columnProcessor.AttrSegment
     str += "\n}\n\n"
     str += "func (model *" + structName + ") TableName() string {\n    return \"" + dealTable.TableName + "\"\n}"
     strmodel := fmt.Sprintf("%s", str)
-    _, err = fp.Write([]byte(strmodel))
-    if err != nil {
-        log.Fatal(err)
-    }
+    writeFile(fileName, strmodel)
 }

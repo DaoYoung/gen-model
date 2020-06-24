@@ -64,7 +64,12 @@ func writeFile(fileName, content string)  {
     defer f.Close()
     if err != nil {
         log.Println(err.Error())
+        os.Exit(1)
     } else {
         _, err = f.Write([]byte(content))
+        if err != nil {
+            log.Fatal(err)
+            os.Exit(1)
+        }
     }
 }

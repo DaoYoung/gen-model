@@ -59,7 +59,6 @@ func validArgs() error {
 	if cmdRequest.Gen.SearchTableName == ""{
 		return errors.New("tableName is empty")
 	}
-
 	if cmdRequest.Gen.OutPutPath == ""{
 		return errors.New("outPutPath is empty")
 	}

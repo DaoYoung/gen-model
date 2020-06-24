@@ -4,6 +4,8 @@ import (
     "github.com/spf13/viper"
     "strings"
     "path/filepath"
+    "log"
+    "os"
 )
 
 type CmdRequest struct {
@@ -39,10 +41,36 @@ func (g *CmdRequest) getOutPutPath() string {
     if g.Gen.OutPutPath == "" {
         g.Gen.OutPutPath = "model"
     }
-    p,_ := filepath.Abs(g.Gen.OutPutPath)
+    p, _ := filepath.Abs(g.Gen.OutPutPath)
     outDir := filepath.Dir(p)
     mkdir(outDir)
     return p
+}
+
+func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
+    if g.Gen.OutPutPath == "" {
+        g.Gen.OutPutPath = "model"
+    }
+    var err error
+    var appPath string
+    if absPath, err = filepath.Abs(g.Gen.OutPutPath);err != nil {
+        log.Println(err)
+        os.Exit(1)
+    }
+    if !isExist(absPath) {
+        log.Println("OutPutPath not exist: " + absPath)
+        os.Exit(1)
+    }
+    if appPath, err = os.Getwd(); err != nil {
+        log.Println(err)
+        os.Exit(1)
+    }
+    if absPath == appPath {
+        packageName = "main"
+    } else {
+        _, packageName = filepath.Split(absPath)
+    }
+    return absPath, packageName
 }
 
 func (g *CmdRequest) SetDataByViper() {
