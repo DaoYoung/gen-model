@@ -22,3 +22,8 @@ type SchemaTable struct {
 func (tc *SchemaTable) TableName() string {
     return "TABLES"
 }
+
+type dealTable struct {
+    TableName string
+    Columns   *[]SchemaColumn
+}

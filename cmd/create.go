@@ -38,8 +38,8 @@ var createCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(createCmd)
-	createCmd.Flags().StringVarP(&genRequest.SearchTableName,"searchTableName","t","", "set your searchTableName, support patten with '*'")
-	createCmd.Flags().BoolVarP(&genRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
+	createCmd.Flags().StringVarP(&cmdRequest.SearchTableName,"searchTableName","t","", "set your searchTableName, support patten with '*'")
+	createCmd.Flags().BoolVarP(&cmdRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
 	flagBindviper(createCmd, false,"searchTableName","searchTableName")
 	flagBindviper(createCmd, false,"isLowerCamelCaseJson","isLowerCamelCaseJson")
 }
@@ -57,18 +57,18 @@ func validArgs() error {
 	if viper.GetString("mysql.password") == ""{
 		return errors.New("mysql.password is empty")
 	}
-	if genRequest.SearchTableName == ""{
+	if cmdRequest.SearchTableName == ""{
 		return errors.New("tableName is empty")
 	}
 
-	if genRequest.OutPutPath == ""{
+	if cmdRequest.OutPutPath == ""{
 		return errors.New("outPutPath is empty")
 	}
 	return  nil
 }
 func generateModel()  {
-	genRequest.SetDataByViper()
-	log.Printf("%+v", genRequest)
+	cmdRequest.SetDataByViper()
+	log.Printf("%+v", cmdRequest)
 	if err := validArgs();err != nil{
 		log.Println(err)
 		os.Exit(1)
@@ -77,5 +77,5 @@ func generateModel()  {
 		log.Println(err)
 		os.Exit(1)
 	}
-	handler.Table2struct(&genRequest)
+	handler.Table2struct(&cmdRequest)
 }

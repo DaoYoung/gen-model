@@ -28,7 +28,7 @@ var persistCmd = &cobra.Command{
 	Args:cobra.OnlyValidArgs,
 	ValidArgs:[]string{"config"},
 	Run: func(cmd *cobra.Command, args []string) {
-		handler.GenConfigYaml(&genRequest)
+		handler.GenConfigYaml(&cmdRequest)
 	},
 }
 

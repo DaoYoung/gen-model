@@ -40,7 +40,7 @@ to quickly create a Cobra application.`,
 	// has an action associated with it:
 	// 	Run: func(cmd *cobra.Command, args []string) { },
 }
-var genRequest handler.GenRequest
+var cmdRequest handler.CmdRequest
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -54,13 +54,13 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	dir, _ := os.Getwd()
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is "+dir+"/"+handler.Yamlfile+".yaml)")
-	rootCmd.PersistentFlags().StringVar(&genRequest.DbConfig.Host, "host", "localhost", "set DB host")
-	rootCmd.PersistentFlags().StringVarP(&genRequest.DbConfig.Database, "database", "d", "", "set your database")
-	rootCmd.PersistentFlags().IntVarP(&genRequest.DbConfig.Port, "port", "p", 3306, "set DB port")
-	rootCmd.PersistentFlags().StringVarP(&genRequest.DbConfig.Username, "username", "u", "root", "set DB login username")
-	rootCmd.PersistentFlags().StringVarP(&genRequest.DbConfig.Password, "password", "w", "", "set DB login password")
-	rootCmd.PersistentFlags().StringVarP(&genRequest.OutPutPath, "outPutPath", "o", ".", "set your OutPutPath")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is "+dir+"/"+handler.YamlFile+".yaml)")
+	rootCmd.PersistentFlags().StringVar(&cmdRequest.DbConfig.Host, "host", "localhost", "set DB host")
+	rootCmd.PersistentFlags().StringVarP(&cmdRequest.DbConfig.Database, "database", "d", "", "set your database")
+	rootCmd.PersistentFlags().IntVarP(&cmdRequest.DbConfig.Port, "port", "p", 3306, "set DB port")
+	rootCmd.PersistentFlags().StringVarP(&cmdRequest.DbConfig.Username, "username", "u", "root", "set DB login username")
+	rootCmd.PersistentFlags().StringVarP(&cmdRequest.DbConfig.Password, "password", "w", "", "set DB login password")
+	rootCmd.PersistentFlags().StringVarP(&cmdRequest.OutPutPath, "outPutPath", "o", ".", "set your OutPutPath")
 	flagBindviper(rootCmd, true,"host","mysql.host")
 	flagBindviper(rootCmd, true,"database","mysql.database")
 	flagBindviper(rootCmd, true,"port","mysql.port")
@@ -85,7 +85,7 @@ func initConfig() {
 
 		// Search config in home directory with name ".gen-model" (without extension).
 		viper.AddConfigPath(dir)
-		viper.SetConfigName(handler.Yamlfile)
+		viper.SetConfigName(handler.YamlFile)
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
