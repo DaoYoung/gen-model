@@ -16,29 +16,22 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
-	"github.com/spf13/cobra"
 	"github.com/DaoYoung/gen-model/handler"
+	"github.com/spf13/cobra"
 )
-// mysqlCmd represents the mysql command
-var mysqlCmd = &cobra.Command{
-	Use:   "mysql",
-	Short: "gen yaml config",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+// persistCmd represents the persist command
+var persistCmd = &cobra.Command{
+	Use:   "persist",
+	Short: "generate local yaml config",
+	Long: `manage vars into file`,
 	Args:cobra.OnlyValidArgs,
+	ValidArgs:[]string{"config"},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("mysql called")
 		handler.GenConfigYaml(&genRequest)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(mysqlCmd)
+	rootCmd.AddCommand(persistCmd)
 }
-

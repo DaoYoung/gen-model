@@ -16,37 +16,32 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"strings"
-
+	"errors"
+	"github.com/DaoYoung/gen-model/handler"
+	"github.com/DaoYoung/gen-model/manager/db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"errors"
 	"log"
-	"github.com/DaoYoung/gen-model/manager/db"
-	"github.com/DaoYoung/gen-model/handler"
+	"os"
 )
 
-// genCmd represents the gen command
-var genCmd = &cobra.Command{
-	Use:   "gen",
-	Short: "gen mysql model",
+// createCmd represents the create command
+var createCmd = &cobra.Command{
+	Use:   "create",
+	Short: "create model struct",
 	Long: `with mysql connect, generate model file`,
 	Args:cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("gen called"+ strings.Join(args, " "))
-		fmt.Println(genRequest)
 		generateModel()
 	},
 }
 
-
 func init() {
-	rootCmd.AddCommand(genCmd)
-	genCmd.Flags().StringVarP(&genRequest.SearchTableName,"searchTableName","t","", "set your searchTableName, support patten with '*'")
-	genCmd.Flags().BoolVarP(&genRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
-	viper.BindPFlag("searchTableName", genCmd.Flags().Lookup("searchTableName"))
-	viper.BindPFlag("isLowerCamelCaseJson", genCmd.Flags().Lookup("isLowerCamelCaseJson"))
+	rootCmd.AddCommand(createCmd)
+	createCmd.Flags().StringVarP(&genRequest.SearchTableName,"searchTableName","t","", "set your searchTableName, support patten with '*'")
+	createCmd.Flags().BoolVarP(&genRequest.IsLowerCamelCaseJson,"isLowerCamelCaseJson","i",true, "set IsLowerCamelCaseJson true/false")
+	flagBindviper(createCmd, false,"searchTableName","searchTableName")
+	flagBindviper(createCmd, false,"isLowerCamelCaseJson","isLowerCamelCaseJson")
 }
 
 func validArgs() (error) {
@@ -73,12 +68,14 @@ func validArgs() (error) {
 }
 func generateModel()  {
 	genRequest.SetDataByViper()
+	log.Printf("%+v", genRequest)
 	if err := validArgs();err != nil{
 		log.Println(err)
-		return
+		os.Exit(1)
 	}
-	log.Printf("%+v", genRequest)
-	db.InitDb()
+	if err := db.InitDb();err != nil{
+		log.Println(err)
+		os.Exit(1)
+	}
 	handler.Table2struct(&genRequest)
 }
-
