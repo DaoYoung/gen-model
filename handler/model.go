@@ -22,13 +22,13 @@ func Table2struct(cmdRequest *CmdRequest) {
             continue
         }
         cmdRequest.Wg.Add(1)
-        go structWrite(dealTable, cmdRequest)
+        go structWrite(*dealTable, cmdRequest)
     }
     cmdRequest.Wg.Wait()
     os.Exit(0)
 }
 
-func structWrite(dealTable *dealTable, cmdRequest *CmdRequest) {
+func structWrite(dealTable dealTable, cmdRequest *CmdRequest) {
     structName := camelString(dealTable.TableName)
     absOutPutPath, packageName := cmdRequest.getAbsPathAndPackageName()
     fileName := checkFile(absOutPutPath + "/" + structName + ".go")
