@@ -97,10 +97,11 @@ func InitDb() error {
         "information_schema",
     )
     if DbSchema, err = gorm.Open("mysql", dsn); err != nil {
-        //fmt.Println("dns",dsn)
         panic(err)
     }
-    //DbSchema.LogMode(true)
+    if viper.GetBool("debug") {
+        DbSchema.LogMode(true)
+    }
     return nil
 }
 

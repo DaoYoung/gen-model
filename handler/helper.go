@@ -106,3 +106,19 @@ func Welcome()  {
 
 	fmt.Println(string(buffer))
 }
+
+func printMessageAndExit(msg string)  {
+	PrintErrorMsg(msg)
+	os.Exit(1)
+}
+
+func printErrorAndExit(err error)  {
+	PrintErrorMsg(err.Error())
+	os.Exit(1)
+}
+func PrintErrorMsg(msg interface{})  {
+	fmt.Println("\n\noccur error:")
+	fmt.Print("  ")
+	fmt.Print(msg)
+	fmt.Print("\n")
+}

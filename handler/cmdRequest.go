@@ -5,7 +5,6 @@ import (
     "strings"
     "path/filepath"
     "os"
-    "fmt"
     "sync"
 )
 
@@ -21,7 +20,6 @@ type dbConfig struct {
     Username string
     Password string
     Port     int
-
 }
 
 type genConfig struct {
@@ -31,8 +29,20 @@ type genConfig struct {
     HasGormTag           bool // gorm tag, `gorm:"column:name"`
     HasJsonTag           bool // json tag, `json:"age"`
     HasGureguNullPackage bool // have package: "gopkg.in/guregu/null.v3"
-    ModelSuffix string //模型后缀
+    ModelSuffix string // model name suffix
+    SourceType string // self-table: struct create by connect mysql tables local: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
+    PersistType string // persist struct mappers at local or db
+    LocalMapperPath string
+
 }
+
+const (
+    persistDb = "db"
+    persistLocal = "local"
+    sourceSelfTable = "self-table"
+    sourceLocal = "local"
+    sourceGenTable = "gen-table"
+)
 
 func (g *CmdRequest) getTables() []string {
     if strings.Contains(g.Gen.SearchTableName, "*") {
@@ -58,16 +68,13 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
     var err error
     var appPath string
     if absPath, err = filepath.Abs(g.Gen.OutPutPath);err != nil {
-        fmt.Println(err)
-        os.Exit(1)
+        printErrorAndExit(err)
     }
     if !isExist(absPath) {
-        fmt.Println("OutPutPath not exist: " + absPath)
-        os.Exit(1)
+        printMessageAndExit("OutPutPath not exist: " + absPath)
     }
     if appPath, err = os.Getwd(); err != nil {
-        fmt.Println(err)
-        os.Exit(1)
+        printErrorAndExit(err)
     }
     if absPath == appPath {
         packageName = "main"
@@ -82,6 +89,8 @@ func (g *CmdRequest) SetDataByViper() {
     g.Gen.OutPutPath = viper.GetString("gen.outPutPath")
     g.Gen.IsLowerCamelCaseJson = viper.GetBool("gen.isLowerCamelCaseJson")
     g.Gen.ModelSuffix = viper.GetString("gen.modelSuffix")
+    g.Gen.SourceType = viper.GetString("gen.sourceType")
+    g.Gen.PersistType = viper.GetString("gen.persistType")
     g.Db.Host = viper.GetString("mysql.host")
     g.Db.Database = viper.GetString("mysql.database")
     g.Db.Port = viper.GetInt("mysql.port")

@@ -17,4 +17,5 @@ require (
 	golang.org/x/text v0.3.3 // indirect
 	gopkg.in/guregu/null.v3 v3.5.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0
 )

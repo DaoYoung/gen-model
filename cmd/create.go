@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DaoYoung/gen-model/handler"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -44,6 +43,12 @@ func init() {
 	flagBindviper(createCmd, false,"searchTableName","gen.searchTableName")
 	flagBindviper(createCmd, false,"isLowerCamelCaseJson","gen.isLowerCamelCaseJson")
 	flagBindviper(createCmd, false,"modelSuffix","gen.modelSuffix")
+	createCmd.Flags().StringVarP(&cmdRequest.Gen.SourceType,"sourceType","r","self-table", "self-table: create struct by self table \nlocal: create struct by local mapper \ngen-table: create struct by stable \"gen_model_mapper\" table")
+	createCmd.Flags().StringVarP(&cmdRequest.Gen.PersistType,"persistType","y","", "local: generate local struct mappers \ngen-table: generate mapper table \"gen_model_mapper\" ")
+	flagBindviper(createCmd, false,"sourceType","gen.sourceType")
+	flagBindviper(createCmd, false,"persistType","gen.persistType")
+	createCmd.Flags().Bool("debug", false,"true: print full message")
+	flagBindviper(createCmd, false,"debug","debug")
 }
 
 func validArgs() error {
@@ -71,11 +76,13 @@ func validArgs() error {
 func generateModel()  {
 	defer func(){
 		if r := recover(); r != nil {
-			fmt.Println(r)
+			handler.PrintErrorMsg(r)
 		}
 	}()
 	cmdRequest.SetDataByViper()
-	//log.Printf("%+v", cmdRequest)
+	if viper.GetBool("debug") {
+		log.Printf("%+v", cmdRequest)
+	}
 	if err := validArgs();err != nil{
 		log.Println(err)
 		os.Exit(1)

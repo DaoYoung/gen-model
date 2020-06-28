@@ -1,11 +1,11 @@
 mysql:
-  host: localhost
+  host: test6.hljnbw.cn
   database: slim
   port: 3306
-  username: root
-  password: root
+  username: scuser
+  password: qweasdX9btur000
 gen:
-  searchTableName: merge # support patten with '*'
+  searchTableName: merges # support patten with '*'
   outPutPath: model # file path
   isLowerCamelCaseJson: true # true: model json tag use lower camelcase, like 'camelCase', not like 'CamelCase'
   hasGormTag: true # gorm tag, `gorm:"column:name"`
