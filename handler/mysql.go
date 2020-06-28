@@ -84,9 +84,9 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
     return "", importNothing
 }
 
-var DbSchema *gorm.DB
+var dbSchema *gorm.DB
 
-func InitDb() error {
+func initDb() error {
     var err error
     dsn := fmt.Sprintf(
         "%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
@@ -96,11 +96,11 @@ func InitDb() error {
         viper.GetInt("mysql.port"),
         "information_schema",
     )
-    if DbSchema, err = gorm.Open("mysql", dsn); err != nil {
+    if dbSchema, err = gorm.Open("mysql", dsn); err != nil {
         panic(err)
     }
     if viper.GetBool("debug") {
-        DbSchema.LogMode(true)
+        dbSchema.LogMode(true)
     }
     return nil
 }
@@ -109,7 +109,7 @@ func matchTables(dbName, tableName string) []string {
     var names []string
     columns := &([]SchemaTable{})
     pattern := strings.Replace(tableName, "*", "%", 2)
-    if err := DbSchema.Where("TABLE_SCHEMA = ?", dbName).Where("TABLE_NAME like ?", pattern).Find(columns).Pluck("TABLE_NAME", &names).Error; err != nil {
+    if err := dbSchema.Where("TABLE_SCHEMA = ?", dbName).Where("TABLE_NAME like ?", pattern).Find(columns).Pluck("TABLE_NAME", &names).Error; err != nil {
         panic(err)
     }
     return names
@@ -117,7 +117,7 @@ func matchTables(dbName, tableName string) []string {
 
 func getOneTableColumns(dbName, tableName string) *[]SchemaColumn {
     columns := &([]SchemaColumn{})
-    if err := DbSchema.Where("TABLE_SCHEMA = ?", dbName).Where("TABLE_NAME = ?", tableName).Find(columns).Error; err != nil {
+    if err := dbSchema.Where("TABLE_SCHEMA = ?", dbName).Where("TABLE_NAME = ?", tableName).Find(columns).Error; err != nil {
         panic(err)
     }
     return columns

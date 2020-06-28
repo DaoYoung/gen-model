@@ -97,3 +97,21 @@ func (g *CmdRequest) SetDataByViper() {
     g.Db.Username = viper.GetString("mysql.username")
     g.Db.Password = viper.GetString("mysql.password")
 }
+
+func (g *CmdRequest) MkModelStruct()  {
+    switch g.Gen.SourceType {
+    case sourceSelfTable:
+        if err := initDb();err != nil{
+            printErrorAndExit(err)
+        }
+        table2Struct(g)
+        break
+    case sourceLocal:
+        localMap2Struct(g)
+        break
+    case sourceGenTable:
+        genTable2Struct(g)
+        break
+    }
+    printMessageAndExit("wrong sourceType, reset value with \"--sourceType=xxx\", or short flag \"-r=xxx\"")
+}

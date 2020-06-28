@@ -14,7 +14,7 @@ type columnProcessor struct {
     Attrs         map[string]string
 }
 
-func Table2struct(cmdRequest *CmdRequest) {
+func table2Struct(cmdRequest *CmdRequest) {
     tables := cmdRequest.getTables()
     dealTable := &(dealTable{})
     for _, tn := range tables {
@@ -107,4 +107,10 @@ func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProce
         columnProcessor.ImportSegment += ")\n"
     }
     return columnProcessor
+}
+func localMap2Struct(cmdRequest *CmdRequest)  {
+
+}
+func genTable2Struct(cmdRequest *CmdRequest)  {
+
 }

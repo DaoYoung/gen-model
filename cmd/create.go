@@ -87,9 +87,5 @@ func generateModel()  {
 		log.Println(err)
 		os.Exit(1)
 	}
-	if err := handler.InitDb();err != nil{
-		log.Println(err)
-		os.Exit(1)
-	}
-	handler.Table2struct(&cmdRequest)
+	cmdRequest.MkModelStruct()
 }
