@@ -6,12 +6,15 @@ import (
     "path/filepath"
     "os"
     "sync"
+    "io/ioutil"
+    "fmt"
+    "path"
 )
 
 type CmdRequest struct {
     Db  dbConfig
     Gen genConfig
-    Wg sync.WaitGroup
+    Wg  sync.WaitGroup
 }
 
 type dbConfig struct {
@@ -26,22 +29,21 @@ type genConfig struct {
     SearchTableName      string
     OutPutPath           string
     IsLowerCamelCaseJson bool
-    HasGormTag           bool // gorm tag, `gorm:"column:name"`
-    HasJsonTag           bool // json tag, `json:"age"`
-    HasGureguNullPackage bool // have package: "gopkg.in/guregu/null.v3"
-    ModelSuffix string // model name suffix
-    SourceType string // self-table: struct create by connect mysql tables local: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
-    PersistType string // persist struct mappers at local or db
-    LocalMapperPath string
-
+    HasGormTag           bool   // gorm tag, `gorm:"column:name"`
+    HasJsonTag           bool   // json tag, `json:"age"`
+    HasGureguNullPackage bool   // have package: "gopkg.in/guregu/null.v3"
+    ModelSuffix          string // model name suffix
+    SourceType           string // self-table: struct create by connect mysql tables local: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
+    PersistType          string // persist struct mappers at local or db
+    LocalMapperPath      string
 }
 
 const (
-    persistDb = "db"
-    persistLocal = "local"
+    persistDb       = "db"
+    persistLocal    = "local"
     sourceSelfTable = "self-table"
-    sourceLocal = "local"
-    sourceGenTable = "gen-table"
+    sourceLocal     = "local"
+    sourceGenTable  = "gen-table"
 )
 
 func (g *CmdRequest) getTables() []string {
@@ -49,6 +51,17 @@ func (g *CmdRequest) getTables() []string {
         return matchTables(g.Db.Database, g.Gen.SearchTableName)
     }
     return []string{g.Gen.SearchTableName}
+}
+func (g *CmdRequest) getMappers(modelPath string) []string {
+    files, _ := ioutil.ReadDir(modelPath)
+    for _, f := range files {
+        fn := f.Name()
+        suffix := path.Ext(fn)
+        fileName := strings.TrimSuffix(fn,suffix)
+        fmt.Println(fileName)
+    }
+    t := []string{}
+    return t
 }
 
 func (g *CmdRequest) getOutPutPath() string {
@@ -67,7 +80,7 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
     }
     var err error
     var appPath string
-    if absPath, err = filepath.Abs(g.Gen.OutPutPath);err != nil {
+    if absPath, err = filepath.Abs(g.Gen.OutPutPath); err != nil {
         printErrorAndExit(err)
     }
     if !isExist(absPath) {
@@ -98,10 +111,10 @@ func (g *CmdRequest) SetDataByViper() {
     g.Db.Password = viper.GetString("mysql.password")
 }
 
-func (g *CmdRequest) MkModelStruct()  {
+func (g *CmdRequest) MkModelStruct() {
     switch g.Gen.SourceType {
     case sourceSelfTable:
-        if err := initDb();err != nil{
+        if err := initDb(); err != nil {
             printErrorAndExit(err)
         }
         table2Struct(g)
@@ -112,6 +125,8 @@ func (g *CmdRequest) MkModelStruct()  {
     case sourceGenTable:
         genTable2Struct(g)
         break
+    default:
+        printMessageAndExit("wrong sourceType, set value with \"" + sourceSelfTable + "\" or \"" + sourceLocal + "\" or \"" + sourceGenTable + "\"")
     }
-    printMessageAndExit("wrong sourceType, reset value with \"--sourceType=xxx\", or short flag \"-r=xxx\"")
+
 }

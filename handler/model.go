@@ -109,7 +109,10 @@ func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProce
     return columnProcessor
 }
 func localMap2Struct(cmdRequest *CmdRequest)  {
-
+    absOutPutPath, packageName := cmdRequest.getAbsPathAndPackageName()
+    tables := cmdRequest.getMappers(absOutPutPath)
+    fmt.Println(111,packageName)
+    fmt.Println(222,tables)
 }
 func genTable2Struct(cmdRequest *CmdRequest)  {
 
