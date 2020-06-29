@@ -46,7 +46,7 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     content += "  hasGormTag: " + strconv.FormatBool(true) + " # gorm tag, `gorm:\"column:name\"`\n"
     content += "  hasJsonTag: " + strconv.FormatBool(true) + " # json tag, `json:\"age\"`\n"
     content += "  hasGureguNullPackage: " + strconv.FormatBool(cmdRequest.Gen.HasGureguNullPackage) + " # have package: \"gopkg.in/guregu/null.v3\"\n"
-    fileName := cmdRequest.getOutPutPath() + "/" + YamlFile + ".yaml"
+    fileName := cmdRequest.getOutPutPath() + "/" + YamlFile + YamlExt
     fileName =filepath.FromSlash(fileName)
     log.Println("GenConfigYaml: ", fileName)
     if isExist(fileName) && !viper.GetBool("force-cover") {
@@ -70,7 +70,7 @@ func genMapYaml(tableName string,filename string, columnProcessor *columnProcess
     return writeFile(filename, fmt.Sprintf("%s", string(d)))
 }
 func readYamlMap(fileName, modelPath string) *fieldMap {
-    data, err := ioutil.ReadFile(filepath.Join(modelPath, fileName+".yaml"))
+    data, err := ioutil.ReadFile(filepath.Join(modelPath, fileName+YamlExt))
     if err != nil {
         printErrorAndExit(err)
     }

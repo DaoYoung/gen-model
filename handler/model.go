@@ -41,8 +41,8 @@ func structWrite(dealTable dealTable, cmdRequest *CmdRequest) {
     } else {
         paper += " success."
         if cmdRequest.Gen.PersistType == persistLocal && cmdRequest.Gen.SourceType != sourceLocal {
-            paper += " create mapper " + structName + "FieldMapper.yaml"
-            mapFileName := filepath.Join(absOutPutPath, structName+"FieldMapper.yaml")
+            paper += " create mapper " + structName + YamlMap + YamlExt
+            mapFileName := filepath.Join(absOutPutPath, structName + YamlMap + YamlExt)
             err = genMapYaml(dealTable.TableName, mapFileName, columnProcessor)
             if err != nil {
                 paper += " failed!!! " + err.Error()
@@ -136,7 +136,7 @@ func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPat
     defer func() {
         fmt.Print(paper)
     }()
-    structName := strings.TrimSuffix(mapfileName,"FieldMapper")
+    structName := strings.TrimSuffix(mapfileName, YamlMap)
     paper = "\ncreate struct " + structName + ".go"
     fileName, err := mkGolangFile(modelPath, structName)
     if err != nil {

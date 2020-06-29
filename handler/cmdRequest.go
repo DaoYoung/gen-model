@@ -47,8 +47,6 @@ const (
     sourceGenTable  = "gen-table"
 )
 
-var yamlExt = ".yaml"
-
 func (g *CmdRequest) getTables() []string {
     if strings.Contains(g.Gen.SearchTableName, "*") {
         return matchTables(g.Db.Database, g.Gen.SearchTableName)
@@ -61,7 +59,7 @@ func (g *CmdRequest) localMap2Struct() {
     for _, f := range files {
         fn := f.Name()
         suffix := path.Ext(fn)
-        if suffix == yamlExt {
+        if suffix == YamlExt {
             fileName := strings.TrimSuffix(fn, suffix)
 
             if isFileNameMatch(g.Gen.SearchTableName, g.Gen.ModelSuffix, fileName) {
