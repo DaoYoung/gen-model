@@ -7,8 +7,9 @@ import (
     "os"
     "sync"
     "io/ioutil"
-    "fmt"
     "path"
+    "regexp"
+    "fmt"
 )
 
 type CmdRequest struct {
@@ -46,22 +47,31 @@ const (
     sourceGenTable  = "gen-table"
 )
 
+var yamlExt = ".yaml"
+
 func (g *CmdRequest) getTables() []string {
     if strings.Contains(g.Gen.SearchTableName, "*") {
         return matchTables(g.Db.Database, g.Gen.SearchTableName)
     }
     return []string{g.Gen.SearchTableName}
 }
-func (g *CmdRequest) getMappers(modelPath string) []string {
+func (g *CmdRequest) localMap2Struct() {
+    modelPath, packageName := g.getAbsPathAndPackageName()
     files, _ := ioutil.ReadDir(modelPath)
     for _, f := range files {
         fn := f.Name()
         suffix := path.Ext(fn)
-        fileName := strings.TrimSuffix(fn,suffix)
-        fmt.Println(fileName)
+        if suffix == yamlExt {
+            fileName := strings.TrimSuffix(fn, suffix)
+
+            if isFileNameMatch(g.Gen.SearchTableName, g.Gen.ModelSuffix, fileName) {
+                g.Wg.Add(1)
+                go mkStructFromYaml(g, fileName, packageName, modelPath)
+            }
+        }
     }
-    t := []string{}
-    return t
+    g.Wg.Wait()
+    os.Exit(0)
 }
 
 func (g *CmdRequest) getOutPutPath() string {
@@ -110,23 +120,49 @@ func (g *CmdRequest) SetDataByViper() {
     g.Db.Username = viper.GetString("mysql.username")
     g.Db.Password = viper.GetString("mysql.password")
 }
-
-func (g *CmdRequest) MkModelStruct() {
+func (cmdRequest *CmdRequest) selfTable2Struct() {
+    tables := cmdRequest.getTables()
+    dealTable := &(dealTable{})
+    for _, tn := range tables {
+        dealTable.TableName = tn
+        dealTable.Columns = getOneTableColumns(cmdRequest.Db.Database, tn)
+        if len(*dealTable.Columns) == 0 {
+            fmt.Println("empty table: " + tn)
+            continue
+        }
+        cmdRequest.Wg.Add(1)
+        go structWrite(*dealTable, cmdRequest)
+    }
+    cmdRequest.Wg.Wait()
+    os.Exit(0)
+}
+func (g *CmdRequest) CreateModelStruct() {
     switch g.Gen.SourceType {
     case sourceSelfTable:
         if err := initDb(); err != nil {
             printErrorAndExit(err)
         }
-        table2Struct(g)
+        g.selfTable2Struct()
         break
     case sourceLocal:
-        localMap2Struct(g)
+        g.localMap2Struct()
         break
     case sourceGenTable:
-        genTable2Struct(g)
+        g.genTable2Struct()
         break
     default:
         printMessageAndExit("wrong sourceType, set value with \"" + sourceSelfTable + "\" or \"" + sourceLocal + "\" or \"" + sourceGenTable + "\"")
     }
+}
+func (g *CmdRequest) genTable2Struct() {
 
+}
+func isFileNameMatch(pattern, suffix, fileName string) bool {
+    fileName = strings.TrimSuffix(fileName, YamlMap)
+    pattern = camelString(fileName)
+    if strings.Contains(pattern, "*") {
+        isMatch, _ := regexp.MatchString(strings.Replace(pattern, "*", "(.*)", -1), "Hello World!")
+        return isMatch
+    }
+    return fileName == pattern
 }

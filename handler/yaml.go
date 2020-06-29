@@ -8,16 +8,25 @@ import (
     "path/filepath"
     "fmt"
     "gopkg.in/yaml.v2"
+    "io/ioutil"
 )
 
 var YamlFile = ".gen-model"
-
+var YamlMap = "FieldMapper"
+var YamlExt = ".yaml"
 
 type fieldMap struct {
     TableName string
-    Fields map[string]string
+    Fields []fieldNameAndType // map has sort problem, fix by slice
 }
+type fieldNameAndType map[string]string
 
+func (f fieldNameAndType) getValues() (fieldName, fieldType string) {
+    for fieldName, fieldType = range f {
+        break
+    }
+    return
+}
 func GenConfigYaml(cmdRequest *CmdRequest) {
     log.Printf("GenConfigYaml %+v", cmdRequest)
     content := ""
@@ -59,4 +68,16 @@ func genMapYaml(tableName string,filename string, columnProcessor *columnProcess
         return err
     }
     return writeFile(filename, fmt.Sprintf("%s", string(d)))
+}
+func readYamlMap(fileName, modelPath string) *fieldMap {
+    data, err := ioutil.ReadFile(filepath.Join(modelPath, fileName+".yaml"))
+    if err != nil {
+        printErrorAndExit(err)
+    }
+    fieldMap := &fieldMap{}
+    err = yaml.Unmarshal(data, fieldMap)
+    if err != nil {
+        printErrorAndExit(err)
+    }
+    return  fieldMap
 }

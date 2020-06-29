@@ -36,54 +36,88 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
     case "tinyint", "int", "smallint", "mediumint":
         if nullable {
             if gureguTypes {
-                return gureguNullInt, importNull
+                goType = gureguNullInt
+            }else{
+                goType = sqlNullInt
             }
-            return sqlNullInt, importSql
+            break
         }
-        return golangInt, importNothing
+        goType = golangInt
+        break
     case "bigint":
         if nullable {
             if gureguTypes {
-                return gureguNullInt, importNull
+                goType = gureguNullInt
+            }else{
+                goType = sqlNullInt
             }
-            return sqlNullInt, importSql
+            break
         }
-        return golangInt64, importNothing
+        goType = golangInt64
+        break
     case "char", "enum", "varchar", "longtext", "mediumtext", "text", "tinytext", "json":
         if nullable {
             if gureguTypes {
-                return gureguNullString, importNull
+                goType =  gureguNullString
             }
-            return sqlNullString, importSql
+            goType = sqlNullString
+            break
         }
-        return "string", importNothing
+        goType = "string"
+        break
     case "date", "datetime", "time", "timestamp":
         if nullable && gureguTypes {
-            return gureguNullTime, importNull
+            goType = gureguNullTime
+        }else {
+            goType = golangTime
         }
-        return golangTime, importTime
+        break
     case "decimal", "double":
         if nullable {
             if gureguTypes {
-                return gureguNullFloat, importNull
+                goType = gureguNullFloat
+            }else {
+                goType = sqlNullFloat
             }
-            return sqlNullFloat, importSql
+            break
         }
-        return golangFloat64, importNothing
+        goType = golangFloat64
+        break
     case "float":
         if nullable {
             if gureguTypes {
-                return gureguNullFloat, importNull
+                goType = gureguNullFloat
+            }else {
+                goType = sqlNullFloat
             }
-            return sqlNullFloat, importSql
+            break
         }
-        return golangFloat32, importNothing
+        goType = golangFloat32
+        break
     case "binary", "blob", "longblob", "mediumblob", "varbinary":
-        return golangByteArray, importNothing
+        goType = golangByteArray
+        break
+    default:
+        goType =""
     }
-    return "", importNothing
+    importPackage = getImportPackage(goType)
+    return
 }
-
+func getImportPackage(golangType string) string {
+    im := importNothing
+    if golangType == "" {
+        return im
+    }
+    switch  {
+    case len(golangType)>2 && golangType[0:3] == "sql":
+        im = importSql
+    case len(golangType)>3 && golangType[0:4] == "null":
+        im = importNull
+    case len(golangType)>3 && golangType[0:4] == "time":
+        im = importTime
+    }
+    return im
+}
 var dbSchema *gorm.DB
 
 func initDb() error {

@@ -87,5 +87,5 @@ func generateModel()  {
 		log.Println(err)
 		os.Exit(1)
 	}
-	cmdRequest.MkModelStruct()
+	cmdRequest.CreateModelStruct()
 }

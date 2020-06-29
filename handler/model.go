@@ -2,7 +2,6 @@ package handler
 
 import (
     "fmt"
-    "os"
     "sort"
     "strings"
     "path/filepath"
@@ -11,24 +10,8 @@ import (
 type columnProcessor struct {
     AttrSegment   string
     ImportSegment string
-    Attrs         map[string]string
-}
-
-func table2Struct(cmdRequest *CmdRequest) {
-    tables := cmdRequest.getTables()
-    dealTable := &(dealTable{})
-    for _, tn := range tables {
-        dealTable.TableName = tn
-        dealTable.Columns = getOneTableColumns(cmdRequest.Db.Database, tn)
-        if len(*dealTable.Columns) == 0 {
-            fmt.Println("empty table: " + tn)
-            continue
-        }
-        cmdRequest.Wg.Add(1)
-        go structWrite(*dealTable, cmdRequest)
-    }
-    cmdRequest.Wg.Wait()
-    os.Exit(0)
+    Attrs         []fieldNameAndType
+    TableName string
 }
 
 func structWrite(dealTable dealTable, cmdRequest *CmdRequest) {
@@ -74,12 +57,14 @@ func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProce
     columnProcessor := &(columnProcessor{})
     var importPackages []string
     var primary string
-    columnProcessor.Attrs = make(map[string]string)
+    // columnProcessor.Attrs = make(map[string]string)
     for _, column := range *columns {
         var structTags []string
         structAttr := camelString(column.ColumnName)
         fieldType, needPackage := mysqlTypeToGoType(column.DataType, column.IsNull(), cmdRequest.Gen.HasGureguNullPackage)
-        columnProcessor.Attrs[structAttr] = fieldType
+        nameAndType := fieldNameAndType{}
+        nameAndType[structAttr] = fieldType
+        columnProcessor.Attrs = append(columnProcessor.Attrs, nameAndType)
         if needPackage != "" && !containString(importPackages, needPackage) {
             importPackages = append(importPackages, needPackage)
         }
@@ -108,12 +93,68 @@ func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProce
     }
     return columnProcessor
 }
-func localMap2Struct(cmdRequest *CmdRequest)  {
-    absOutPutPath, packageName := cmdRequest.getAbsPathAndPackageName()
-    tables := cmdRequest.getMappers(absOutPutPath)
-    fmt.Println(111,packageName)
-    fmt.Println(222,tables)
+func columnProcessYaml(cmdRequest *CmdRequest ,mapfileName, modelPath string) *columnProcessor {
+    columnProcessor := &(columnProcessor{})
+    var importPackages []string
+    fieldMap := readYamlMap(mapfileName, modelPath)
+    columnProcessor.TableName = fieldMap.TableName
+    for _, fieldNameAndType := range fieldMap.Fields {
+        var structTags []string
+        structAttr, fieldType := fieldNameAndType.getValues()
+        fmt.Println(structAttr,fieldType)
+        needPackage := getImportPackage(fieldType)
+        columnProcessor.Attrs = append(columnProcessor.Attrs, fieldNameAndType)
+        if needPackage != "" && !containString(importPackages, needPackage) {
+            importPackages = append(importPackages, needPackage)
+        }
+        if cmdRequest.Gen.HasGormTag {
+            structTags = append(structTags, fmt.Sprintf("gorm:\"column:%s\"", snakeString(structAttr)))
+        }
+        if cmdRequest.Gen.HasJsonTag {
+            structTags = append(structTags, fmt.Sprintf("json:\"%s\"", lcfirst(structAttr)))
+        }
+        columnProcessor.AttrSegment += fmt.Sprintf("\n    %s %s `%s`",
+            structAttr,
+            fieldType,
+            strings.Join(structTags, " "))
+
+    }
+    if len(importPackages) > 0 {
+        sort.Strings(importPackages)
+        columnProcessor.ImportSegment = "import (\n"
+        for _, p := range importPackages {
+            columnProcessor.ImportSegment += "    \"" + p + "\"\n"
+        }
+        columnProcessor.ImportSegment += ")\n"
+    }
+    return columnProcessor
 }
-func genTable2Struct(cmdRequest *CmdRequest)  {
+
+func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPath string)  {
+    var paper string
+    defer cmdRequest.Wg.Done()
+    defer func() {
+        fmt.Print(paper)
+    }()
+    structName := strings.TrimSuffix(mapfileName,"FieldMapper")
+    paper = "\ncreate struct " + structName + ".go"
+    fileName, err := mkGolangFile(modelPath, structName)
+    if err != nil {
+        paper += err.Error()
+        return
+    }
+    str := "package " + packageName + "\n\n"
+    columnProcessor := columnProcessYaml(cmdRequest,mapfileName,modelPath)
+    str += columnProcessor.ImportSegment
+    str += "\ntype " + structName + " struct {"
+    str += columnProcessor.AttrSegment
+    str += "\n}\n\n"
+    str += "func (model *" + structName + ") TableName() string {\n    return \"" + columnProcessor.TableName + "\"\n}"
+    err = writeFile(fileName, fmt.Sprintf("%s", str))
+    if err != nil {
+        paper += " failed!!! " + err.Error()
+    } else {
+        paper += " success."
+    }
 
 }
