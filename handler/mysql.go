@@ -37,7 +37,7 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
         if nullable {
             if gureguTypes {
                 goType = gureguNullInt
-            }else{
+            } else {
                 goType = sqlNullInt
             }
             break
@@ -48,7 +48,7 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
         if nullable {
             if gureguTypes {
                 goType = gureguNullInt
-            }else{
+            } else {
                 goType = sqlNullInt
             }
             break
@@ -58,7 +58,7 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
     case "char", "enum", "varchar", "longtext", "mediumtext", "text", "tinytext", "json":
         if nullable {
             if gureguTypes {
-                goType =  gureguNullString
+                goType = gureguNullString
             }
             goType = sqlNullString
             break
@@ -68,7 +68,7 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
     case "date", "datetime", "time", "timestamp":
         if nullable && gureguTypes {
             goType = gureguNullTime
-        }else {
+        } else {
             goType = golangTime
         }
         break
@@ -76,7 +76,7 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
         if nullable {
             if gureguTypes {
                 goType = gureguNullFloat
-            }else {
+            } else {
                 goType = sqlNullFloat
             }
             break
@@ -87,7 +87,7 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
         if nullable {
             if gureguTypes {
                 goType = gureguNullFloat
-            }else {
+            } else {
                 goType = sqlNullFloat
             }
             break
@@ -98,7 +98,7 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
         goType = golangByteArray
         break
     default:
-        goType =""
+        goType = ""
     }
     return
 }
@@ -107,16 +107,17 @@ func getImportPackage(golangType string) string {
     if golangType == "" {
         return im
     }
-    switch  {
-    case len(golangType)>2 && golangType[0:3] == "sql":
+    switch {
+    case len(golangType) > 2 && golangType[0:3] == "sql":
         im = importSql
-    case len(golangType)>3 && golangType[0:4] == "null":
+    case len(golangType) > 3 && golangType[0:4] == "null":
         im = importNull
-    case len(golangType)>3 && golangType[0:4] == "time":
+    case len(golangType) > 3 && golangType[0:4] == "time":
         im = importTime
     }
     return im
 }
+
 var dbSchema *gorm.DB
 
 func initDb() error {

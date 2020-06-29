@@ -17,7 +17,7 @@ var YamlExt = ".yaml"
 
 type fieldMap struct {
     TableName string
-    Fields []fieldNameAndType // map has sort problem, fix by slice
+    Fields    []fieldNameAndType // map has sort problem, fix by slice
 }
 type fieldNameAndType map[string]string
 
@@ -47,7 +47,7 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     content += "  hasJsonTag: " + strconv.FormatBool(true) + " # json tag, `json:\"age\"`\n"
     content += "  hasGureguNullPackage: " + strconv.FormatBool(cmdRequest.Gen.HasGureguNullPackage) + " # have package: \"gopkg.in/guregu/null.v3\"\n"
     fileName := cmdRequest.getOutPutPath() + "/" + YamlFile + YamlExt
-    fileName =filepath.FromSlash(fileName)
+    fileName = filepath.FromSlash(fileName)
     log.Println("GenConfigYaml: ", fileName)
     if isExist(fileName) && !viper.GetBool("force-cover") {
         printMessageAndExit("you have config file: " + filepath.FromSlash(fileName) + ", \nset falg --force-cover=true if you want cover")
@@ -61,8 +61,8 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     os.Exit(0)
 }
 
-func genMapYaml(tableName string,filename string, columnProcessor *columnProcessor) error {
-    fm := &fieldMap{TableName:tableName, Fields:columnProcessor.Attrs}
+func genMapYaml(tableName string, filename string, columnProcessor *columnProcessor) error {
+    fm := &fieldMap{TableName: tableName, Fields: columnProcessor.Attrs}
     d, err := yaml.Marshal(&fm)
     if err != nil {
         return err
@@ -79,5 +79,5 @@ func readYamlMap(fileName, modelPath string) *fieldMap {
     if err != nil {
         printErrorAndExit(err)
     }
-    return  fieldMap
+    return fieldMap
 }
