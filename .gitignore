@@ -2,12 +2,8 @@
 /release/*
 *.xml
 *.exe
-config.yml
+*.yaml
 *.log
 *.out
 *.svg
 go.sum
-/vendor
-/runtime/app/app.pid
-/runtime/logs/*.log
-*.config.local.yaml

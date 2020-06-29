@@ -8,7 +8,6 @@ import (
     "path/filepath"
     "strings"
     "unicode"
-    "strconv"
 )
 
 func camelString(s string) string {
@@ -104,26 +103,6 @@ func mkGolangFile(outPutPath, structName string) (fileName string, err error) {
 func Welcome() {
     slogan := "                                            __     __\r\n   ____ ____  ____     ____ ___  ____  ____/ /__  / /\r\n  / __ `/ _ \\/ __ \\   / __ `__ \\/ __ \\/ __  / _ \\/ /\r\n / /_/ /  __/ / / /  / / / / / / /_/ / /_/ /  __/ /\r\n \\__, /\\___/_/ /_/  /_/ /_/ /_/\\____/\\__,_/\\___/_/\r\n/____/\r\n"
     fmt.Println(slogan)
-}
-
-func outfile() {
-    file, err := os.Open("toast")
-    if err != nil {
-        panic(err)
-    }
-    defer file.Close()
-    fileinfo, err := file.Stat()
-    if err != nil {
-        panic(err)
-    }
-
-    fileSize := fileinfo.Size()
-    buffer := make([]byte, fileSize)
-    _, err = file.Read(buffer)
-    if err != nil {
-        panic(err)
-    }
-    fmt.Printf(strconv.Quote(string(buffer)))
 }
 
 func printMessageAndExit(msg string) {
