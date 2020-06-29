@@ -31,7 +31,7 @@ const (
     importNothing = ""
 )
 
-func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goType, importPackage string) {
+func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goType string) {
     switch mysqlType {
     case "tinyint", "int", "smallint", "mediumint":
         if nullable {
@@ -100,7 +100,6 @@ func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goTyp
     default:
         goType =""
     }
-    importPackage = getImportPackage(goType)
     return
 }
 func getImportPackage(golangType string) string {

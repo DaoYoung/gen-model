@@ -12,131 +12,87 @@ type columnProcessor struct {
     ImportSegment string
     Attrs         []fieldNameAndType
     TableName string
+    ImportPackages []string
 }
-
-func structWrite(dealTable dealTable, cmdRequest *CmdRequest) {
-    var paper string
-    defer cmdRequest.Wg.Done()
-    defer func() {
-        fmt.Print(paper)
-    }()
-    structName := camelString(dealTable.TableName + cmdRequest.Gen.ModelSuffix)
-    paper = "\ncreate struct " + structName + ".go"
-    absOutPutPath, packageName := cmdRequest.getAbsPathAndPackageName()
-    fileName, err := mkGolangFile(absOutPutPath, structName)
-    if err != nil {
-        paper += err.Error()
-        return
-    }
-    str := "package " + packageName + "\n\n"
-    columnProcessor := columnProcess(dealTable.Columns, cmdRequest)
-    str += columnProcessor.ImportSegment
-    str += "\ntype " + structName + " struct {"
-    str += columnProcessor.AttrSegment
-    str += "\n}\n\n"
-    str += "func (model *" + structName + ") TableName() string {\n    return \"" + dealTable.TableName + "\"\n}"
-    err = writeFile(fileName, fmt.Sprintf("%s", str))
-    if err != nil {
-        paper += " failed!!! " + err.Error()
-    } else {
-        paper += " success."
-        if cmdRequest.Gen.PersistType == persistLocal && cmdRequest.Gen.SourceType != sourceLocal {
-            paper += " create mapper " + structName + YamlMap + YamlExt
-            mapFileName := filepath.Join(absOutPutPath, structName + YamlMap + YamlExt)
-            err = genMapYaml(dealTable.TableName, mapFileName, columnProcessor)
-            if err != nil {
-                paper += " failed!!! " + err.Error()
-            } else {
-                paper += " success."
-            }
-        }
-    }
-}
-
-func columnProcess(columns *[]SchemaColumn, cmdRequest *CmdRequest) *columnProcessor {
-    columnProcessor := &(columnProcessor{})
-    var importPackages []string
-    var primary string
-    // columnProcessor.Attrs = make(map[string]string)
-    for _, column := range *columns {
-        var structTags []string
-        structAttr := camelString(column.ColumnName)
-        fieldType, needPackage := mysqlTypeToGoType(column.DataType, column.IsNull(), cmdRequest.Gen.HasGureguNullPackage)
-        nameAndType := fieldNameAndType{}
-        nameAndType[structAttr] = fieldType
-        columnProcessor.Attrs = append(columnProcessor.Attrs, nameAndType)
-        if needPackage != "" && !containString(importPackages, needPackage) {
-            importPackages = append(importPackages, needPackage)
-        }
-        if cmdRequest.Gen.HasGormTag {
-            primary = ""
-            if column.ColumnKey == "PRI" {
-                primary = ";primary_key"
-            }
-            structTags = append(structTags, fmt.Sprintf("gorm:\"column:%s%s\"", column.ColumnName, primary))
-        }
-        if cmdRequest.Gen.HasJsonTag {
-            structTags = append(structTags, fmt.Sprintf("json:\"%s\"", lcfirst(structAttr)))
-        }
-        columnProcessor.AttrSegment += fmt.Sprintf("\n    %s %s `%s`",
-            structAttr,
-            fieldType,
-            strings.Join(structTags, " "))
-    }
-    if len(importPackages) > 0 {
-        sort.Strings(importPackages)
+func (columnProcessor *columnProcessor) buildImportSegment() {
+    if len(columnProcessor.ImportPackages) > 0 {
+        sort.Strings(columnProcessor.ImportPackages)
         columnProcessor.ImportSegment = "import (\n"
-        for _, p := range importPackages {
+        for _, p := range columnProcessor.ImportPackages {
             columnProcessor.ImportSegment += "    \"" + p + "\"\n"
         }
         columnProcessor.ImportSegment += ")\n"
     }
+}
+
+func mkStructFromSelfTable(tableName string, cmdRequest *CmdRequest) {
+    defer cmdRequest.Wg.Done()
+    dealTable := &(dealTable{})
+    dealTable.TableName = tableName
+    dealTable.Columns = getOneTableColumns(cmdRequest.Db.Database, tableName)
+    if len(*dealTable.Columns) == 0 {
+        fmt.Println("empty table: " + tableName)
+        return
+    }
+    structName := camelString(dealTable.TableName + cmdRequest.Gen.ModelSuffix)
+    modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
+    columnProcessor := getProcessorSelfTable(dealTable, cmdRequest)
+    outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
+
+}
+
+func getProcessorSelfTable(dealTable *dealTable, cmdRequest *CmdRequest) *columnProcessor {
+    columnProcessor := &(columnProcessor{})
+    columnProcessor.TableName = dealTable.TableName
+    columns := *dealTable.Columns
+    for _, column := range columns {
+        structAttr := camelString(column.ColumnName)
+        fieldType := mysqlTypeToGoType(column.DataType, column.IsNull(), cmdRequest.Gen.HasGureguNullPackage)
+        nameAndType := fieldNameAndType{}
+        nameAndType[structAttr] = fieldType
+        oneFieldProcess(columnProcessor, nameAndType, cmdRequest)
+    }
+    columnProcessor.buildImportSegment()
     return columnProcessor
 }
-func columnProcessYaml(cmdRequest *CmdRequest ,mapfileName, modelPath string) *columnProcessor {
+func getProcessorYaml(cmdRequest *CmdRequest ,mapfileName, modelPath string) *columnProcessor {
     columnProcessor := &(columnProcessor{})
-    var importPackages []string
     fieldMap := readYamlMap(mapfileName, modelPath)
     columnProcessor.TableName = fieldMap.TableName
     for _, fieldNameAndType := range fieldMap.Fields {
-        var structTags []string
-        structAttr, fieldType := fieldNameAndType.getValues()
-        fmt.Println(structAttr,fieldType)
-        needPackage := getImportPackage(fieldType)
-        columnProcessor.Attrs = append(columnProcessor.Attrs, fieldNameAndType)
-        if needPackage != "" && !containString(importPackages, needPackage) {
-            importPackages = append(importPackages, needPackage)
-        }
-        if cmdRequest.Gen.HasGormTag {
-            structTags = append(structTags, fmt.Sprintf("gorm:\"column:%s\"", snakeString(structAttr)))
-        }
-        if cmdRequest.Gen.HasJsonTag {
-            structTags = append(structTags, fmt.Sprintf("json:\"%s\"", lcfirst(structAttr)))
-        }
-        columnProcessor.AttrSegment += fmt.Sprintf("\n    %s %s `%s`",
-            structAttr,
-            fieldType,
-            strings.Join(structTags, " "))
-
+        oneFieldProcess(columnProcessor, fieldNameAndType, cmdRequest)
     }
-    if len(importPackages) > 0 {
-        sort.Strings(importPackages)
-        columnProcessor.ImportSegment = "import (\n"
-        for _, p := range importPackages {
-            columnProcessor.ImportSegment += "    \"" + p + "\"\n"
-        }
-        columnProcessor.ImportSegment += ")\n"
-    }
+    columnProcessor.buildImportSegment()
     return columnProcessor
 }
 
-func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPath string)  {
-    var paper string
+func oneFieldProcess(columnProcessor *columnProcessor, fieldNameAndType fieldNameAndType, cmdRequest *CmdRequest) {
+    var structTags []string
+    structAttr, fieldType := fieldNameAndType.getValues()
+    needPackage := getImportPackage(fieldType)
+    columnProcessor.Attrs = append(columnProcessor.Attrs, fieldNameAndType)
+    if needPackage != "" && !containString(columnProcessor.ImportPackages, needPackage) {
+        columnProcessor.ImportPackages = append(columnProcessor.ImportPackages, needPackage)
+    }
+    if cmdRequest.Gen.HasGormTag {
+        structTags = append(structTags, fmt.Sprintf("gorm:\"column:%s\"", snakeString(structAttr)))
+    }
+    if cmdRequest.Gen.HasJsonTag {
+        structTags = append(structTags, fmt.Sprintf("json:\"%s\"", lcfirst(structAttr)))
+    }
+    columnProcessor.AttrSegment += fmt.Sprintf("\n    %s %s `%s`",
+        structAttr,
+        fieldType,
+        strings.Join(structTags, " "))
+}
+func beforeMkStruct(cmdRequest *CmdRequest)  {
     defer cmdRequest.Wg.Done()
+}
+func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor,modelPath,packageName,structName string)  {
+    var paper string
     defer func() {
         fmt.Print(paper)
     }()
-    structName := strings.TrimSuffix(mapfileName, YamlMap)
     paper = "\ncreate struct " + structName + ".go"
     fileName, err := mkGolangFile(modelPath, structName)
     if err != nil {
@@ -144,7 +100,6 @@ func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPat
         return
     }
     str := "package " + packageName + "\n\n"
-    columnProcessor := columnProcessYaml(cmdRequest,mapfileName,modelPath)
     str += columnProcessor.ImportSegment
     str += "\ntype " + structName + " struct {"
     str += columnProcessor.AttrSegment
@@ -155,6 +110,25 @@ func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPat
         paper += " failed!!! " + err.Error()
     } else {
         paper += " success."
+        if cmdRequest.Gen.PersistType == persistLocal && cmdRequest.Gen.SourceType != sourceLocal {
+            paper += " create mapper " + structName + YamlMap + YamlExt
+            mapFileName := filepath.Join(modelPath, structName + YamlMap + YamlExt)
+            err = genMapYaml(columnProcessor.TableName, mapFileName, columnProcessor)
+            if err != nil {
+                paper += " failed!!! " + err.Error()
+            } else {
+                paper += " success."
+            }
+        }
     }
+}
+func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPath string)  {
+    defer cmdRequest.Wg.Done()
+    structName := strings.TrimSuffix(mapfileName, YamlMap)
+    columnProcessor := getProcessorYaml(cmdRequest,mapfileName,modelPath)
+    outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
+
+
+
 
 }

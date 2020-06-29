@@ -9,7 +9,6 @@ import (
     "io/ioutil"
     "path"
     "regexp"
-    "fmt"
 )
 
 type CmdRequest struct {
@@ -61,7 +60,6 @@ func (g *CmdRequest) localMap2Struct() {
         suffix := path.Ext(fn)
         if suffix == YamlExt {
             fileName := strings.TrimSuffix(fn, suffix)
-
             if isFileNameMatch(g.Gen.SearchTableName, g.Gen.ModelSuffix, fileName) {
                 g.Wg.Add(1)
                 go mkStructFromYaml(g, fileName, packageName, modelPath)
@@ -120,16 +118,9 @@ func (g *CmdRequest) SetDataByViper() {
 }
 func (cmdRequest *CmdRequest) selfTable2Struct() {
     tables := cmdRequest.getTables()
-    dealTable := &(dealTable{})
     for _, tn := range tables {
-        dealTable.TableName = tn
-        dealTable.Columns = getOneTableColumns(cmdRequest.Db.Database, tn)
-        if len(*dealTable.Columns) == 0 {
-            fmt.Println("empty table: " + tn)
-            continue
-        }
         cmdRequest.Wg.Add(1)
-        go structWrite(*dealTable, cmdRequest)
+        go mkStructFromSelfTable(tn, cmdRequest)
     }
     cmdRequest.Wg.Wait()
     os.Exit(0)
