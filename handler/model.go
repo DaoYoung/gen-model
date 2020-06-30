@@ -111,7 +111,7 @@ func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, mode
         paper += " failed!!! " + err.Error()
     } else {
         paper += " success."
-        if cmdRequest.Gen.PersistType == persistLocal && cmdRequest.Gen.SourceType != sourceLocal {
+        if cmdRequest.Gen.PersistType == sourceLocal && cmdRequest.Gen.SourceType != sourceLocal {
             paper += " create mapper " + structName + YamlMap + YamlExt
             mapFileName := filepath.Join(modelPath, structName+YamlMap+YamlExt)
             err = genMapYaml(columnProcessor.TableName, mapFileName, columnProcessor)
@@ -120,6 +120,10 @@ func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, mode
             } else {
                 paper += " success."
             }
+        }
+        if cmdRequest.Gen.PersistType == sourceGenTable && cmdRequest.Gen.SourceType != sourceGenTable {
+            initGenDb()
+
         }
     }
 }

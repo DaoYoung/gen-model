@@ -119,8 +119,16 @@ func getImportPackage(golangType string) string {
 }
 
 var dbSchema *gorm.DB
+var dbGen *gorm.DB
 
-func initDb() error {
+func initSchemaDb()  {
+    dbSchema = connectDb("information_schema")
+}
+func initGenDb()  {
+    dbGen = connectDb("gen-model")
+    dbGen.AutoMigrate(&GenModel{})
+}
+func connectDb(dbName string) (dbPool *gorm.DB) {
     var err error
     dsn := fmt.Sprintf(
         "%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
@@ -128,17 +136,21 @@ func initDb() error {
         viper.GetString("mysql.password"),
         viper.GetString("mysql.host"),
         viper.GetInt("mysql.port"),
-        "information_schema",
+        dbName,
     )
-    if dbSchema, err = gorm.Open("mysql", dsn); err != nil {
+    if dbPool, err = gorm.Open("mysql", dsn); err != nil {
         panic(err)
     }
     if viper.GetBool("debug") {
-        dbSchema.LogMode(true)
+        dbPool.LogMode(true)
     }
-    return nil
+    return
 }
 
+func createOrUpdateMappers(dbName, tableName,modelFieldName,modelFieldType string) {
+    genModel := &GenModel{}
+
+}
 func matchTables(dbName, tableName string) []string {
     var names []string
     columns := &([]SchemaTable{})
