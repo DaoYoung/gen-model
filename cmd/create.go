@@ -32,6 +32,7 @@ var createCmd = &cobra.Command{
     Args:  cobra.NoArgs,
     Run: func(cmd *cobra.Command, args []string) {
         generateModel()
+
     },
 }
 

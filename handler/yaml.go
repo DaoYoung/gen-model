@@ -57,8 +57,8 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     os.Exit(0)
 }
 
-func genMapYaml(tableName string, filename string, columnProcessor *columnProcessor) error {
-    fm := &fieldMap{TableName: tableName, Fields: columnProcessor.Attrs}
+func genMapYaml( filename string, columnProcessor *columnProcessor) error {
+    fm := &fieldMap{TableName: columnProcessor.TableName, Fields: columnProcessor.Attrs}
     d, err := yaml.Marshal(&fm)
     if err != nil {
         return err

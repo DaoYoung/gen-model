@@ -137,7 +137,6 @@ func (cmdRequest *CmdRequest) genTable2Struct() {
 func (g *CmdRequest) CreateModelStruct() {
     switch g.Gen.SourceType {
     case sourceSelfTable:
-
         g.selfTable2Struct()
         break
     case sourceLocal:

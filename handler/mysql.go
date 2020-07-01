@@ -122,11 +122,17 @@ var dbSchema *gorm.DB
 var dbGen *gorm.DB
 
 func initSchemaDb()  {
-    dbSchema = connectDb("information_schema")
+    if dbSchema== nil {
+        dbSchema = connectDb("information_schema")
+    }
 }
 func initGenDb()  {
-    dbGen = connectDb("gen-model")
-    dbGen.AutoMigrate(&GenModel{})
+    initSchemaDb()
+    dbSchema.Exec("create database IF NOT EXISTS gen_model")
+    dbGen = connectDb("gen_model")
+    dbGen.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8 comment 'struct mappers'").AutoMigrate(&structMapper{})
+    dbGen.Model(&structMapper{}).AddIndex("idx_db_name", "db_name")
+    dbGen.Model(&structMapper{}).AddIndex("idx_table_name", "table_name")
 }
 func connectDb(dbName string) (dbPool *gorm.DB) {
     var err error
@@ -144,12 +150,25 @@ func connectDb(dbName string) (dbPool *gorm.DB) {
     if viper.GetBool("debug") {
         dbPool.LogMode(true)
     }
+    // defer dbPool.Close()
     return
 }
 
-func createOrUpdateMappers(dbName, tableName,modelFieldName,modelFieldType string) {
-    genModel := &GenModel{}
-
+func createOrUpdateMappers(dbName string, columnProcessor *columnProcessor) {
+    var existFields []string
+    condition := &structMapper{}
+    condition.DbName = dbName
+    condition.TableName = columnProcessor.TableName
+    for _,fieldNameAndType := range columnProcessor.Attrs{
+        condition.Id = 0
+        fn,ft := fieldNameAndType.getValues()
+        condition.ModelFieldName = fn
+        existFields = append(existFields, fn)
+        dbGen.Where(condition).Assign(structMapper{ModelFieldType: ft}).FirstOrCreate(&structMapper{})
+    }
+    if len(existFields) > 0 {
+        dbGen.Where("model_field_name NOT IN (?)", existFields).Delete(structMapper{})
+    }
 }
 func matchTables(dbName, tableName string) []string {
     var names []string
@@ -168,3 +187,4 @@ func getOneTableColumns(dbName, tableName string) *[]SchemaColumn {
     }
     return columns
 }
+

@@ -5,6 +5,7 @@ import (
     "sort"
     "strings"
     "path/filepath"
+    "github.com/spf13/viper"
 )
 
 type columnProcessor struct {
@@ -86,8 +87,23 @@ func oneFieldProcess(columnProcessor *columnProcessor, fieldNameAndType fieldNam
         fieldType,
         strings.Join(structTags, " "))
 }
-func beforeMkStruct(cmdRequest *CmdRequest) {
-    defer cmdRequest.Wg.Done()
+func saveStructMappers(cmdRequest *CmdRequest, columnProcessor *columnProcessor, structName, modelPath string) (paper string) {
+    var err error
+    if cmdRequest.Gen.PersistType == sourceLocal && cmdRequest.Gen.SourceType != sourceLocal {
+        paper += " create mapper " + structName + YamlMap + YamlExt
+        mapFileName := filepath.Join(modelPath, structName+YamlMap+YamlExt)
+        err = genMapYaml(mapFileName, columnProcessor)
+    }
+    if cmdRequest.Gen.PersistType == sourceGenTable && cmdRequest.Gen.SourceType != sourceGenTable {
+        initGenDb()
+        createOrUpdateMappers(viper.GetString("mysql.database"), columnProcessor)
+    }
+    if err != nil {
+        paper += " failed!!! " + err.Error()
+    } else {
+        paper += " success."
+    }
+    return  paper
 }
 func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, modelPath, packageName, structName string) {
     var paper string
@@ -111,20 +127,7 @@ func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, mode
         paper += " failed!!! " + err.Error()
     } else {
         paper += " success."
-        if cmdRequest.Gen.PersistType == sourceLocal && cmdRequest.Gen.SourceType != sourceLocal {
-            paper += " create mapper " + structName + YamlMap + YamlExt
-            mapFileName := filepath.Join(modelPath, structName+YamlMap+YamlExt)
-            err = genMapYaml(columnProcessor.TableName, mapFileName, columnProcessor)
-            if err != nil {
-                paper += " failed!!! " + err.Error()
-            } else {
-                paper += " success."
-            }
-        }
-        if cmdRequest.Gen.PersistType == sourceGenTable && cmdRequest.Gen.SourceType != sourceGenTable {
-            initGenDb()
-
-        }
+        paper += saveStructMappers(cmdRequest, columnProcessor,modelPath,structName)
     }
 }
 func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPath string) {
@@ -132,5 +135,4 @@ func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPat
     structName := strings.TrimSuffix(mapfileName, YamlMap)
     columnProcessor := getProcessorYaml(cmdRequest, mapfileName, modelPath)
     outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
-
 }
