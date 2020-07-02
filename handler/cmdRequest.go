@@ -36,7 +36,6 @@ type genConfig struct {
     ModelSuffix          string // model name suffix
     SourceType           string // self-table: struct create by connect mysql tables local: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
     PersistType          string // persist struct mappers at local or db
-    LocalMapperPath      string
 }
 
 func (gc *genConfig) getSearchTableName() string {
