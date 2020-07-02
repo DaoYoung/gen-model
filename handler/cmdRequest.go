@@ -126,10 +126,12 @@ func (g *CmdRequest) localMap2Struct() {
     os.Exit(0)
 }
 func (cmdRequest *CmdRequest) genTable2Struct() {
+    initSchemaDb()
+    initGenDb()
     tables := cmdRequest.getTables()
     for _, tn := range tables {
         cmdRequest.Wg.Add(1)
-        go mkStructFromSelfTable(tn, cmdRequest)
+        go mkStructFromGenTable(tn, cmdRequest)
     }
     cmdRequest.Wg.Wait()
     os.Exit(0)

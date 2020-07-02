@@ -4,7 +4,6 @@ import (
     "github.com/jinzhu/gorm"
     "github.com/spf13/viper"
     "fmt"
-    "strings"
     _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
@@ -152,39 +151,5 @@ func connectDb(dbName string) (dbPool *gorm.DB) {
     }
     // defer dbPool.Close()
     return
-}
-
-func createOrUpdateMappers(dbName string, columnProcessor *columnProcessor) {
-    var existFields []string
-    condition := &structMapper{}
-    condition.DbName = dbName
-    condition.TableName = columnProcessor.TableName
-    for _,fieldNameAndType := range columnProcessor.Attrs{
-        condition.Id = 0
-        fn,ft := fieldNameAndType.getValues()
-        condition.ModelFieldName = fn
-        existFields = append(existFields, fn)
-        dbGen.Where(condition).Assign(structMapper{ModelFieldType: ft}).FirstOrCreate(&structMapper{})
-    }
-    if len(existFields) > 0 {
-        dbGen.Where("model_field_name NOT IN (?)", existFields).Delete(structMapper{})
-    }
-}
-func matchTables(dbName, tableName string) []string {
-    var names []string
-    columns := &([]SchemaTable{})
-    pattern := strings.Replace(tableName, "*", "%", 2)
-    if err := dbSchema.Where("TABLE_SCHEMA = ?", dbName).Where("TABLE_NAME like ?", pattern).Find(columns).Pluck("TABLE_NAME", &names).Error; err != nil {
-        panic(err)
-    }
-    return names
-}
-
-func getOneTableColumns(dbName, tableName string) *[]SchemaColumn {
-    columns := &([]SchemaColumn{})
-    if err := dbSchema.Where("TABLE_SCHEMA = ?", dbName).Where("TABLE_NAME = ?", tableName).Find(columns).Error; err != nil {
-        panic(err)
-    }
-    return columns
 }
 

@@ -27,6 +27,18 @@ func (columnProcessor *columnProcessor) buildImportSegment() {
     }
 }
 
+func mkStructFromGenTable(tableName string, cmdRequest *CmdRequest) {
+    defer cmdRequest.Wg.Done()
+    structName := camelString(tableName + cmdRequest.Gen.ModelSuffix)
+    mapSlice, err := findStructMapper(cmdRequest.Db.Database, tableName,structName)
+    if err!=nil {
+        fmt.Println(tableName+": " + err.Error())
+        return
+    }
+    modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
+    columnProcessor := getProcessorGenTable(tableName, mapSlice, cmdRequest)
+    outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
+}
 func mkStructFromSelfTable(tableName string, cmdRequest *CmdRequest) {
     defer cmdRequest.Wg.Done()
     dealTable := &(dealTable{})
@@ -36,11 +48,10 @@ func mkStructFromSelfTable(tableName string, cmdRequest *CmdRequest) {
         fmt.Println("empty table: " + tableName)
         return
     }
-    structName := camelString(dealTable.TableName + cmdRequest.Gen.ModelSuffix)
+    structName := camelString(tableName + cmdRequest.Gen.ModelSuffix)
     modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
     columnProcessor := getProcessorSelfTable(dealTable, cmdRequest)
     outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
-
 }
 
 func getProcessorSelfTable(dealTable *dealTable, cmdRequest *CmdRequest) *columnProcessor {
@@ -67,7 +78,17 @@ func getProcessorYaml(cmdRequest *CmdRequest, mapfileName, modelPath string) *co
     columnProcessor.buildImportSegment()
     return columnProcessor
 }
-
+func getProcessorGenTable(tableName string,mapSlice *[]structMapper, cmdRequest *CmdRequest) *columnProcessor {
+    columnProcessor := &(columnProcessor{})
+    columnProcessor.TableName = tableName
+    for _, sm := range *mapSlice {
+        nameAndType := fieldNameAndType{}
+        nameAndType[sm.ModelFieldName] = sm.ModelFieldType
+        oneFieldProcess(columnProcessor, nameAndType, cmdRequest)
+    }
+    columnProcessor.buildImportSegment()
+    return columnProcessor
+}
 func oneFieldProcess(columnProcessor *columnProcessor, fieldNameAndType fieldNameAndType, cmdRequest *CmdRequest) {
     var structTags []string
     structAttr, fieldType := fieldNameAndType.getValues()
@@ -96,7 +117,8 @@ func saveStructMappers(cmdRequest *CmdRequest, columnProcessor *columnProcessor,
     }
     if cmdRequest.Gen.PersistType == sourceGenTable && cmdRequest.Gen.SourceType != sourceGenTable {
         initGenDb()
-        createOrUpdateMappers(viper.GetString("mysql.database"), columnProcessor)
+        paper += " mapper sql: insert into gen_model.struct_mappers"
+        err = createOrUpdateMappers(viper.GetString("mysql.database"), structName, columnProcessor)
     }
     if err != nil {
         paper += " failed!!! " + err.Error()
@@ -127,7 +149,7 @@ func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, mode
         paper += " failed!!! " + err.Error()
     } else {
         paper += " success."
-        paper += saveStructMappers(cmdRequest, columnProcessor,modelPath,structName)
+        paper += saveStructMappers(cmdRequest, columnProcessor,structName,modelPath)
     }
 }
 func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPath string) {

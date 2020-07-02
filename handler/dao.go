@@ -52,29 +52,39 @@ func getOneTableColumns(dbName, tableName string) *[]SchemaColumn {
 }
 
 type structMapper struct {
-    Id    int    `gorm:"primary_key;auto_increment;"`
-    DbName       string    `gorm:"type:varchar(150);not null;comment:'database name';"`
-    TableName     string `gorm:"type:varchar(150);not null;comment:'table name';"`
-    ModelFieldName   string `gorm:"type:varchar(150);not null;comment:'golang struct field name';"`
-    ModelFieldType    string  `gorm:"type:varchar(50);not null;comment:'golang struct field type';"`
-    CreatedAt time.Time
-    UpdatedAt time.Time
-    DeletedAt *time.Time
+    Id             int    `gorm:"primary_key;auto_increment;"`
+    DbName         string `gorm:"type:varchar(150);not null;comment:'database name';"`
+    TableName      string `gorm:"type:varchar(150);not null;comment:'table name';"`
+    StructName     string `gorm:"type:varchar(150);not null;comment:'struct name';"`
+    ModelFieldName string `gorm:"type:varchar(150);not null;comment:'golang struct field name';"`
+    ModelFieldType string `gorm:"type:varchar(50);not null;comment:'golang struct field type';"`
+    CreatedAt      time.Time
+    UpdatedAt      time.Time
+    DeletedAt      *time.Time
 }
 
-func createOrUpdateMappers(dbName string, columnProcessor *columnProcessor) {
+func createOrUpdateMappers(dbName string, structName string, columnProcessor *columnProcessor) (err error){
     var existFields []string
     condition := &structMapper{}
     condition.DbName = dbName
     condition.TableName = columnProcessor.TableName
-    for _,fieldNameAndType := range columnProcessor.Attrs{
+    condition.StructName = structName
+    for _, fieldNameAndType := range columnProcessor.Attrs {
         condition.Id = 0
-        fn,ft := fieldNameAndType.getValues()
+        fn, ft := fieldNameAndType.getValues()
         condition.ModelFieldName = fn
         existFields = append(existFields, fn)
-        dbGen.Where(condition).Assign(structMapper{ModelFieldType: ft}).FirstOrCreate(&structMapper{})
+        err = dbGen.Where(condition).Assign(structMapper{ModelFieldType: ft}).FirstOrCreate(&structMapper{}).Error
     }
     if len(existFields) > 0 {
         dbGen.Where("model_field_name NOT IN (?)", existFields).Delete(structMapper{})
     }
+    return
+}
+
+func findStructMapper(dbName, tableName, structName string) (mapSlice *[]structMapper, err error) {
+    if err = dbGen.Where(structMapper{DbName: dbName, TableName: tableName, StructName:structName}).Find(mapSlice).Error; err != nil {
+        return nil, err
+    }
+    return
 }
