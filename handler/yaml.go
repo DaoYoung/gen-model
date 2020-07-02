@@ -27,10 +27,12 @@ func (f fieldNameAndType) getValues() (fieldName, fieldType string) {
     return
 }
 func GenConfigYaml(cmdRequest *CmdRequest) {
-    fileName := filepath.Join(cmdRequest.getOutPutPath(), YamlFile + YamlExt)
-    if isExist(fileName) && !viper.GetBool("force-cover") {
-        printMessageAndExit("you have config file: " + fileName + ", \nset flag --force-cover=true if you want cover")
+    projectRoot, _ := os.Getwd()
+    fileName := filepath.Join(projectRoot, YamlFile + YamlExt)
+    if isExist(fileName) && !viper.GetBool("forceCover") {
+        printMessageAndExit("you have config file: " + fileName + ", \nset flag --forceCover=true if you want cover")
     }
+
     content := ""
     content += "mysql:\n"
     content += "  host: " + cmdRequest.Db.Host + "\n"
@@ -48,10 +50,12 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     content += "  hasGormTag: " + strconv.FormatBool(true) + " # gorm tag, `gorm:\"column:name\"`\n"
     content += "  hasJsonTag: " + strconv.FormatBool(true) + " # json tag, `json:\"age\"`\n"
     content += "  hasGureguNullPackage: " + strconv.FormatBool(cmdRequest.Gen.HasGureguNullPackage) + " # have package: \"gopkg.in/guregu/null.v3\"\n"
+
     fmt.Print("\ncreate yaml " + fileName)
+    // fmt.Println(content)
     err := writeFile(fileName, content)
     if err != nil {
-        printMessageAndExit(" failed/n")
+        printMessageAndExit(" failed " + err.Error())
     }
     fmt.Print(" success")
     os.Exit(0)

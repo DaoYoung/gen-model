@@ -9,6 +9,7 @@ import (
     "io/ioutil"
     "path"
     "regexp"
+    "fmt"
 )
 
 type CmdRequest struct {
@@ -36,6 +37,19 @@ type genConfig struct {
     SourceType           string // self-table: struct create by connect mysql tables local: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
     PersistType          string // persist struct mappers at local or db
     LocalMapperPath      string
+}
+
+func (gc *genConfig) getSearchTableName() string {
+    return gc.SearchTableName+gc.ModelSuffix
+}
+func (gc *genConfig) getSearchStructName() string {
+    return camelString(gc.SearchTableName)+gc.ModelSuffix
+}
+func (gc *genConfig) isBuildLocalMapper() bool {
+    return gc.PersistType == sourceLocal && gc.SourceType!= sourceLocal
+}
+func (gc *genConfig) isBuildGenTable() bool {
+    return gc.PersistType == sourceGenTable && gc.SourceType!= sourceGenTable
 }
 
 const (
@@ -100,40 +114,54 @@ func (g *CmdRequest) SetDataByViper() {
 }
 func (cmdRequest *CmdRequest) selfTable2Struct() {
     initSchemaDb()
+    fmt.Println("search table "+cmdRequest.Gen.SearchTableName+" in db: "+cmdRequest.Db.Database)
     tables := cmdRequest.getTables()
     for _, tn := range tables {
         cmdRequest.Wg.Add(1)
         go mkStructFromSelfTable(tn, cmdRequest)
     }
     cmdRequest.Wg.Wait()
+    if len(tables) ==0 {
+        fmt.Println("\n\n  nothing found out :( ")
+    }
     os.Exit(0)
 }
 func (g *CmdRequest) localMap2Struct() {
     modelPath, packageName := g.getAbsPathAndPackageName()
+    fmt.Println("pattern: "+g.Gen.getSearchStructName()+" search mapper yaml at "+modelPath)
     files, _ := ioutil.ReadDir(modelPath)
+    count := 0
     for _, f := range files {
         fn := f.Name()
         suffix := path.Ext(fn)
         if suffix == YamlExt {
             fileName := strings.TrimSuffix(fn, suffix)
             if isFileNameMatch(g.Gen.SearchTableName, g.Gen.ModelSuffix, fileName) {
+                count++
                 g.Wg.Add(1)
                 go mkStructFromYaml(g, fileName, packageName, modelPath)
             }
         }
     }
     g.Wg.Wait()
+    if count ==0 {
+        fmt.Println("\n\n  none yaml found out :( ")
+    }
     os.Exit(0)
 }
 func (cmdRequest *CmdRequest) genTable2Struct() {
     initSchemaDb()
     initGenDb()
+    fmt.Println("search table "+cmdRequest.Gen.getSearchTableName()+" in gen table: get_model.struct_mappers")
     tables := cmdRequest.getTables()
     for _, tn := range tables {
         cmdRequest.Wg.Add(1)
         go mkStructFromGenTable(tn, cmdRequest)
     }
     cmdRequest.Wg.Wait()
+    if len(tables) ==0 {
+        fmt.Println("\n\n  nothing found out :( ")
+    }
     os.Exit(0)
 }
 func (g *CmdRequest) CreateModelStruct() {
@@ -154,9 +182,9 @@ func (g *CmdRequest) CreateModelStruct() {
 
 func isFileNameMatch(pattern, suffix, fileName string) bool {
     fileName = strings.TrimSuffix(fileName, YamlMap)
-    pattern = camelString(fileName)
+    pattern = camelString(pattern)+suffix
     if strings.Contains(pattern, "*") {
-        isMatch, _ := regexp.MatchString(strings.Replace(pattern, "*", "(.*)", -1), "Hello World!")
+        isMatch, _ := regexp.MatchString(strings.Replace(pattern, "*", "(.*)", -1), fileName)
         return isMatch
     }
     return fileName == pattern

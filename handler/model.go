@@ -110,20 +110,25 @@ func oneFieldProcess(columnProcessor *columnProcessor, fieldNameAndType fieldNam
 }
 func saveStructMappers(cmdRequest *CmdRequest, columnProcessor *columnProcessor, structName, modelPath string) (paper string) {
     var err error
-    if cmdRequest.Gen.PersistType == sourceLocal && cmdRequest.Gen.SourceType != sourceLocal {
+    hasBuildAction := false
+    if cmdRequest.Gen.isBuildLocalMapper() {
+        hasBuildAction = true
         paper += " create mapper " + structName + YamlMap + YamlExt
         mapFileName := filepath.Join(modelPath, structName+YamlMap+YamlExt)
         err = genMapYaml(mapFileName, columnProcessor)
     }
-    if cmdRequest.Gen.PersistType == sourceGenTable && cmdRequest.Gen.SourceType != sourceGenTable {
+    if cmdRequest.Gen.isBuildGenTable() {
+        hasBuildAction = true
         initGenDb()
         paper += " mapper sql: insert into gen_model.struct_mappers"
         err = createOrUpdateMappers(viper.GetString("mysql.database"), structName, columnProcessor)
     }
-    if err != nil {
-        paper += " failed!!! " + err.Error()
-    } else {
-        paper += " success."
+    if hasBuildAction {
+        if err != nil {
+            paper += " failed!!! " + err.Error()
+        } else {
+            paper += " success."
+        }
     }
     return  paper
 }
@@ -133,18 +138,22 @@ func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, mode
         fmt.Print(paper)
     }()
     paper = "\ncreate struct " + structName + ".go"
-    fileName, err := mkGolangFile(modelPath, structName)
-    if err != nil {
-        paper += err.Error()
-        return
-    }
+    fileName, existErr := mkGolangFile(modelPath, structName)
+
     str := "package " + packageName + "\n\n"
     str += columnProcessor.ImportSegment
     str += "\ntype " + structName + " struct {"
     str += columnProcessor.AttrSegment
     str += "\n}\n\n"
     str += "func (model *" + structName + ") TableName() string {\n    return \"" + columnProcessor.TableName + "\"\n}"
-    err = writeFile(fileName, fmt.Sprintf("%s", str))
+    if existErr != nil {
+        paper += existErr.Error()
+        paper +="\n\n------- print "+structName+" start -------\n"
+        paper += str
+        paper +="\n\n------- print "+structName+" end -------\n"
+        return
+    }
+    err := writeFile(fileName, fmt.Sprintf("%s", str))
     if err != nil {
         paper += " failed!!! " + err.Error()
     } else {

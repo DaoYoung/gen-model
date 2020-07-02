@@ -94,8 +94,8 @@ func writeFile(fileName, content string) error {
 func mkGolangFile(outPutPath, structName string) (fileName string, err error) {
     goFileName := structName + ".go"
     fileName = filepath.Join(outPutPath, goFileName)
-    if isExist(fileName) && !viper.GetBool("force-cover") {
-        return "", errors.New(" failed!!! " + goFileName + " has exist, set --force-cover=true if you want cover.")
+    if isExist(fileName) && !viper.GetBool("forceCover") {
+        return "", errors.New(" failed!!! " + goFileName + " has exist, set --forceCover=true if you want cover.")
     }
     return fileName, nil
 }

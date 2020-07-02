@@ -83,6 +83,7 @@ func createOrUpdateMappers(dbName string, structName string, columnProcessor *co
 }
 
 func findStructMapper(dbName, tableName, structName string) (mapSlice *[]structMapper, err error) {
+    mapSlice = &([]structMapper{})
     if err = dbGen.Where(structMapper{DbName: dbName, TableName: tableName, StructName:structName}).Find(mapSlice).Error; err != nil {
         return nil, err
     }
