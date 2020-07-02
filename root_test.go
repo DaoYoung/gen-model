@@ -1,36 +1,35 @@
 package main
 
 import (
-    "github.com/spf13/cobra"
-    "fmt"
-    "bytes"
-    "io/ioutil"
     "testing"
+    "os/exec"
+    "os"
+    "log"
+    "fmt"
 )
-var in string
-func NewRootCmd() *cobra.Command {
-    cmd := &cobra.Command{
-        Use:   "hugo",
-        Short: "Hugo is a very fast static site generator",
-        RunE: func(cmd *cobra.Command, args []string) error {
-            fmt.Fprintf(cmd.OutOrStdout(), in)
-            return nil
-        },
-    }
-    cmd.Flags().StringVar(&in, "in", "", "This is a very important input.")
-    return cmd
+// func TestCreateBySelfTable(t *testing.T)  {
+//     cmd.InitConfig()
+//     cmd.CmdRequest.SetDataByViper()
+//     cmd.CmdRequest.CreateModelStruct()
+// }
+func Crasher() {
+    fmt.Println("Going down in flames!")
+    os.Exit(1)
+
 }
-func Test_Main(t *testing.T)  {
-    cmd := NewRootCmd()
-    b := bytes.NewBufferString("")
-    cmd.SetOut(b)
-    cmd.SetArgs([]string{"--in", "testisawesome"})
-    cmd.Execute()
-    out, err := ioutil.ReadAll(b)
-    if err != nil {
-        t.Fatal(err)
+func TestCrasher(t *testing.T) {
+    log.Println(1111)
+    if os.Getenv("BE_CRASHER") == "1" {
+        log.Println(1111)
+        Crasher()
+        return
     }
-    if string(out) != "testisawesome" {
-        t.Fatalf("expected \"%s\" got \"%s\"", "testisawesome", string(out))
+    cmd := exec.Command(os.Args[0], "-test.run=TestCrasher")
+    cmd.Env = append(os.Environ(), "BE_CRASHER=1")
+    err := cmd.Run()
+    if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+        t.Log( e)
+        return
     }
+    t.Fatalf("process ran with err %v, want exit status 1", err)
 }

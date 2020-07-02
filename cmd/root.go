@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
     Short: "generate model struct",
     Long:  "Features:\n  1. generate model struct\n  2. filter table columns with persistent mappers",
 }
-var cmdRequest handler.CmdRequest
+var CmdRequest handler.CmdRequest
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -45,18 +45,18 @@ func Execute() {
 }
 
 func init() {
-    cobra.OnInitialize(initConfig)
+    cobra.OnInitialize(InitConfig)
     dir, _ := os.Getwd()
     rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is "+filepath.Join(dir, handler.YamlFile+handler.YamlExt)+")")
-    rootCmd.PersistentFlags().StringVarP(&cmdRequest.Db.Host, "host", "t", "localhost", "set DB host")
-    rootCmd.PersistentFlags().StringVarP(&cmdRequest.Db.Database, "database", "d", "", "set your database")
-    rootCmd.PersistentFlags().IntVarP(&cmdRequest.Db.Port, "port", "p", 3306, "set DB port")
-    rootCmd.PersistentFlags().StringVarP(&cmdRequest.Db.Username, "username", "u", "root", "set DB login username")
-    rootCmd.PersistentFlags().StringVarP(&cmdRequest.Db.Password, "password", "w", "", "set DB login password")
-    rootCmd.PersistentFlags().StringVarP(&cmdRequest.Gen.OutPutPath, "outPutPath", "o", "./model/", "set your OutPutPath")
-    rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasGormTag, "hasGormTag", "g", true, "gorm tag")
-    rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasJsonTag, "hasJsonTag", "j", true, "gorm tag")
-    rootCmd.PersistentFlags().BoolVarP(&cmdRequest.Gen.HasGureguNullPackage, "hasGureguNullPackage", "n", true, "have package: \"gopkg.in/guregu/null.v3\"")
+    rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Host, "host", "t", "localhost", "set DB host")
+    rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Database, "database", "d", "", "set your database")
+    rootCmd.PersistentFlags().IntVarP(&CmdRequest.Db.Port, "port", "p", 3306, "set DB port")
+    rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Username, "username", "u", "root", "set DB login username")
+    rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Password, "password", "w", "", "set DB login password")
+    rootCmd.PersistentFlags().StringVarP(&CmdRequest.Gen.OutPutPath, "outPutPath", "o", "./model/", "set your OutPutPath")
+    rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Gen.HasGormTag, "hasGormTag", "g", true, "gorm tag")
+    rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Gen.HasJsonTag, "hasJsonTag", "j", true, "gorm tag")
+    rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Gen.HasGureguNullPackage, "hasGureguNullPackage", "n", true, "have package: \"gopkg.in/guregu/null.v3\"")
     rootCmd.PersistentFlags().BoolP("forceCover", "f", false, "force over, if persist file exist")
     flagBindviper(rootCmd, true, "forceCover", "forceCover")
     flagBindviper(rootCmd, true, "host", "mysql.host")
@@ -72,7 +72,7 @@ func init() {
 }
 
 // initConfig reads in config file and ENV variables if set.
-func initConfig() {
+func InitConfig() {
     if cfgFile != "" {
         // Use config file from the flag.
         viper.SetConfigFile(cfgFile)

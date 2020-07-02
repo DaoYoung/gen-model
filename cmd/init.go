@@ -27,7 +27,7 @@ var initCmd = &cobra.Command{
 	Long: `manage vars into file`,
 	Args:cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		handler.GenConfigYaml(&cmdRequest)
+		handler.GenConfigYaml(&CmdRequest)
 	},
 }
 
