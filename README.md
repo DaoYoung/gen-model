@@ -1,3 +1,4 @@
+[中文教程](https://www.jianshu.com/p/0d1d942d281e)
 # gen-model
 ### features
 * generate model struct from mysql tables
