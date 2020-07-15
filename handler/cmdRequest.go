@@ -10,6 +10,7 @@ import (
     "path"
     "regexp"
     "fmt"
+    "log"
 )
 
 type CmdRequest struct {
@@ -34,8 +35,8 @@ type genConfig struct {
     HasJsonTag           bool   // json tag, `json:"age"`
     HasGureguNullPackage bool   // have package: "gopkg.in/guregu/null.v3"
     ModelSuffix          string // model name suffix
-    SourceType           string // self-table: struct create by connect mysql tables local: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
-    PersistType          string // persist struct mappers at local or db
+    SourceType           string // self-table: struct create by connect mysql tables local-mapper: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
+    PersistType          string // persist struct mappers at local-mapper or gen-table
 }
 
 func (gc *genConfig) getSearchTableName() string {
@@ -90,6 +91,9 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
     if appPath, err = os.Getwd(); err != nil {
         printErrorAndExit(err)
     }
+    path, err := filepath.Abs(filepath.Dir(os.Args[0]))
+    log.Println(path)
+    log.Println(absPath,appPath)
     if absPath == appPath {
         packageName = "main"
     } else {

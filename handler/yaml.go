@@ -48,7 +48,7 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
     content += "  hasJsonTag: " + strconv.FormatBool(true) + " # json tag, `json:\"age\"`\n"
     content += "  hasGureguNullPackage: " + strconv.FormatBool(cmdRequest.Gen.HasGureguNullPackage) + " # have package: \"gopkg.in/guregu/null.v3\"\n"
     content += "  modelSuffix: " + cmdRequest.Gen.ModelSuffix + " # model name suffix\n"
-    content += "  sourceType: " + cmdRequest.Gen.SourceType + " # self-table: struct create by connect mysql tables local: struct create by local mappers gen-table: struct create by table \"gen_model_mapper\"\n"
+    content += "  sourceType: " + cmdRequest.Gen.SourceType + " # self-table: struct create by connect mysql tables; local-mapper: struct create by local mappers; gen-table: struct create by table \"gen_model_mapper\"\n"
     content += "  persistType: " + cmdRequest.Gen.PersistType + " # persist struct mappers at local-mapper or gen-table\n"
 
 

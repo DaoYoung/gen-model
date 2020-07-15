@@ -10,6 +10,7 @@ type SchemaColumn struct {
     ColumnKey  string `gorm:"column:COLUMN_KEY"`
     DataType   string `gorm:"column:DATA_TYPE"`
     IsNullable string `gorm:"column:IS_NULLABLE"`
+    ColumnComment string `gorm:"column:COLUMN_COMMENT"`
 }
 
 func (tc *SchemaColumn) TableName() string {

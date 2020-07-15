@@ -70,9 +70,13 @@ func getProcessorSelfTable(dealTable *dealTable, cmdRequest *CmdRequest) *column
 }
 func getProcessorYaml(cmdRequest *CmdRequest, mapfileName, modelPath string) *columnProcessor {
     columnProcessor := &(columnProcessor{})
-    fieldMap := readYamlMap(mapfileName, modelPath)
-    columnProcessor.TableName = fieldMap.TableName
-    for _, fieldNameAndType := range fieldMap.Fields {
+    var fm *fieldMap
+    var ok bool
+    if fm,ok = viper.Get("mock_map").(*fieldMap) ; !ok {
+        fm = readYamlMap(mapfileName, modelPath)
+    }
+    columnProcessor.TableName = fm.TableName
+    for _, fieldNameAndType := range fm.Fields {
         oneFieldProcess(columnProcessor, fieldNameAndType, cmdRequest)
     }
     columnProcessor.buildImportSegment()
