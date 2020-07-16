@@ -18,6 +18,7 @@ var rootCmd = &cobra.Command{
 	Short: "generate model struct",
 	Long:  "Features:\n  1. generate model struct\n  2. filter table columns with persistent mappers",
 }
+
 // CmdRequest request arguments manager
 var CmdRequest handler.CmdRequest
 

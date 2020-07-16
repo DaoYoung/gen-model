@@ -1,19 +1,21 @@
 package handler
 
 import (
+	"fmt"
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-	"github.com/spf13/viper"
 	"strconv"
-	"io/ioutil"
-	"fmt"
-	"gopkg.in/yaml.v2"
 )
 
 // YamlFile is config file
 var YamlFile = ".gen-model"
+
 // YamlMap is local mapper file suffix
 var YamlMap = "FieldMapper"
+
 // YamlExt is local file ext
 var YamlExt = ".yaml"
 
