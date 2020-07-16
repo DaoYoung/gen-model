@@ -60,7 +60,7 @@ func getProcessorSelfTable(dealTable *dealTable, cmdRequest *CmdRequest) *column
 	columns := *dealTable.Columns
 	for _, column := range columns {
 		structAttr := camelString(column.ColumnName)
-		fieldType := mysqlTypeToGoType(column.DataType, column.isNull(), cmdRequest.Gen.HasGureguNullPackage)
+		fieldType := mysqlTypeToGoType(column.DataType, column.isNull())
 		nameAndType := fieldNameAndType{}
 		nameAndType[structAttr] = fieldType
 		oneFieldProcess(columnProcessor, nameAndType, cmdRequest)
@@ -142,7 +142,7 @@ func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, mode
 		fmt.Print(paper)
 	}()
 	paper = "\ncreate struct " + structName + ".go"
-	fileName, existErr := mkGolangFile(modelPath, structName)
+	fileName, existErr := spellGolangFile(modelPath, structName)
 
 	str := "package " + packageName + "\n\n"
 	str += columnProcessor.ImportSegment
