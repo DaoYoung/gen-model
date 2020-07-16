@@ -84,10 +84,10 @@ func writeFile(fileName, content string) error {
 	if err != nil {
 		return err
 	}
-    _, err = f.Write([]byte(content))
-    if err != nil {
-        return err
-    }
+	_, err = f.Write([]byte(content))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func mkGolangFile(outPutPath, structName string) (fileName string, err error) {
@@ -98,21 +98,20 @@ func mkGolangFile(outPutPath, structName string) (fileName string, err error) {
 	}
 	return fileName, nil
 }
-/**
-  stdout slogan
- */
+
+// Welcome slogan
 func Welcome() {
 	slogan := "                                            __     __\r\n   ____ ____  ____     ____ ___  ____  ____/ /__  / /\r\n  / __ `/ _ \\/ __ \\   / __ `__ \\/ __ \\/ __  / _ \\/ /\r\n / /_/ /  __/ / / /  / / / / / / /_/ / /_/ /  __/ /\r\n \\__, /\\___/_/ /_/  /_/ /_/ /_/\\____/\\__,_/\\___/_/\r\n/____/\r\n"
 	fmt.Println(slogan)
 }
 
 func printMessageAndExit(msg string) {
-    printErrorMsg(msg)
+	printErrorMsg(msg)
 	os.Exit(1)
 }
 
 func printErrorAndExit(err error) {
-    printErrorMsg(err.Error())
+	printErrorMsg(err.Error())
 	os.Exit(1)
 }
 

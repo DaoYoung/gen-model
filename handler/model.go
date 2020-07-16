@@ -60,7 +60,7 @@ func getProcessorSelfTable(dealTable *dealTable, cmdRequest *CmdRequest) *column
 	columns := *dealTable.Columns
 	for _, column := range columns {
 		structAttr := camelString(column.ColumnName)
-		fieldType := mysqlTypeToGoType(column.DataType, column.IsNull(), cmdRequest.Gen.HasGureguNullPackage)
+		fieldType := mysqlTypeToGoType(column.DataType, column.isNull(), cmdRequest.Gen.HasGureguNullPackage)
 		nameAndType := fieldNameAndType{}
 		nameAndType[structAttr] = fieldType
 		oneFieldProcess(columnProcessor, nameAndType, cmdRequest)

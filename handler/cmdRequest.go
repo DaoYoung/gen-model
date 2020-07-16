@@ -11,7 +11,8 @@ import (
 	"strings"
 	"sync"
 )
-// request arguments manager
+
+// CmdRequest is request arguments manager
 type CmdRequest struct {
 	Db  dbConfig
 	Gen genConfig
@@ -96,7 +97,8 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
 	}
 	return absPath, packageName
 }
-// bind viper value
+
+// SetDataByViper bind viper value
 func (g *CmdRequest) SetDataByViper() {
 	g.Gen.SearchTableName = viper.GetString("gen.searchTableName")
 	g.Gen.OutPutPath = viper.GetString("gen.outPutPath")
@@ -162,13 +164,14 @@ func (g *CmdRequest) genTable2Struct() {
 	}
 	os.Exit(0)
 }
-// create model struct file
+
+// CreateModelStruct create model struct file
 func (g *CmdRequest) CreateModelStruct() {
-    defer func() {
-        if r := recover(); r != nil {
-            printErrorMsg(r)
-        }
-    }()
+	defer func() {
+		if r := recover(); r != nil {
+			printErrorMsg(r)
+		}
+	}()
 	switch g.Gen.SourceType {
 	case sourceSelfTable:
 		g.selfTable2Struct()

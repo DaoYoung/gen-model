@@ -18,7 +18,8 @@ var rootCmd = &cobra.Command{
 	Short: "generate model struct",
 	Long:  "Features:\n  1. generate model struct\n  2. filter table columns with persistent mappers",
 }
-var CmdRequest handler.CmdRequest // request arguments manager
+// CmdRequest request arguments manager
+var CmdRequest handler.CmdRequest
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -30,7 +31,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(InitConfig)
+	cobra.OnInitialize(initConfig)
 	dir, _ := os.Getwd()
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is "+filepath.Join(dir, handler.YamlFile+handler.YamlExt)+")")
 	rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Host, "host", "t", "localhost", "set DB host")
@@ -57,7 +58,7 @@ func init() {
 }
 
 // initConfig reads in config file and ENV variables if set.
-func InitConfig() {
+func initConfig() {
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)

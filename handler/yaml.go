@@ -6,11 +6,16 @@ import (
 	"github.com/spf13/viper"
 	"strconv"
 	"io/ioutil"
+	"fmt"
+	"gopkg.in/yaml.v2"
 )
 
-var YamlFile = ".gen-model" // local mapper filename
-var YamlMap = "FieldMapper" // mapper file suffix
-var YamlExt = ".yaml" // file ext
+// YamlFile is config file
+var YamlFile = ".gen-model"
+// YamlMap is local mapper file suffix
+var YamlMap = "FieldMapper"
+// YamlExt is local file ext
+var YamlExt = ".yaml"
 
 type fieldMap struct {
 	TableName string
@@ -24,9 +29,8 @@ func (f fieldNameAndType) getValues() (fieldName, fieldType string) {
 	}
 	return
 }
-/**
- generate config in app path
- */
+
+// GenConfigYaml can generate config in app path
 func GenConfigYaml(cmdRequest *CmdRequest) {
 	projectRoot, _ := os.Getwd()
 	fileName := filepath.Join(projectRoot, YamlFile+YamlExt)

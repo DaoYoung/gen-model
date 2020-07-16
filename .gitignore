@@ -6,5 +6,4 @@
 *.log
 *.out
 *.txt
-go.sum
 /model/*

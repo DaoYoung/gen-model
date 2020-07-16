@@ -4,7 +4,8 @@ import (
 	"strings"
 	"time"
 )
-// table information_schema.COLUMNS fields
+
+// SchemaColumn show table information_schema.COLUMNS fields
 type SchemaColumn struct {
 	ColumnName    string `gorm:"column:COLUMN_NAME"`
 	ColumnKey     string `gorm:"column:COLUMN_KEY"`
@@ -12,20 +13,23 @@ type SchemaColumn struct {
 	IsNullable    string `gorm:"column:IS_NULLABLE"`
 	ColumnComment string `gorm:"column:COLUMN_COMMENT"`
 }
-// gorm func
+
+// TableName is gorm func
 func (tc *SchemaColumn) TableName() string {
 	return "COLUMNS"
 }
 
-func (tc *SchemaColumn) IsNull() bool {
+func (tc *SchemaColumn) isNull() bool {
 	return tc.IsNullable == "YES"
 }
-// table information_schema.TABLES fields
+
+// SchemaTable show table information_schema.TABLES fields
 type SchemaTable struct {
 	TableSchema    string `gorm:"column:TABLE_SCHEMA"`
 	TableNameAlias string `gorm:"column:TABLE_NAME"`
 }
-// gorm func
+
+// TableName is gorm func
 func (tc *SchemaTable) TableName() string {
 	return "TABLES"
 }
