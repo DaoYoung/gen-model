@@ -1,3 +1,8 @@
+[![Build Status](https://travis-ci.com/DaoYoung/gen-model.svg?branch=master)](https://travis-ci.com/DaoYoung/gen-model)
+[![Go Report Card](https://goreportcard.com/badge/github.com/DaoYoung/gen-model)](https://goreportcard.com/report/github.com/DaoYoung/gen-model)
+[![GoDoc](https://godoc.org/github.com/xxjwxc/gormt?status.svg)](https://godoc.org/github.com/xxjwxc/gormt)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go) 
+
 [中文教程](https://www.jianshu.com/p/0d1d942d281e)
 # gen-model
 ### features

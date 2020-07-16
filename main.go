@@ -18,5 +18,5 @@ package main
 import "github.com/DaoYoung/gen-model/cmd"
 
 func main() {
-  cmd.Execute()
+	cmd.Execute()
 }
