@@ -1,18 +1,16 @@
 package handler
 
 import (
-	"fmt"
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"github.com/spf13/viper"
 	"strconv"
+	"io/ioutil"
 )
 
-var YamlFile = ".gen-model"
-var YamlMap = "FieldMapper"
-var YamlExt = ".yaml"
+var YamlFile = ".gen-model" // local mapper filename
+var YamlMap = "FieldMapper" // mapper file suffix
+var YamlExt = ".yaml" // file ext
 
 type fieldMap struct {
 	TableName string
@@ -26,13 +24,15 @@ func (f fieldNameAndType) getValues() (fieldName, fieldType string) {
 	}
 	return
 }
+/**
+ generate config in app path
+ */
 func GenConfigYaml(cmdRequest *CmdRequest) {
 	projectRoot, _ := os.Getwd()
 	fileName := filepath.Join(projectRoot, YamlFile+YamlExt)
 	if isExist(fileName) && !viper.GetBool("forceCover") {
 		printMessageAndExit("you have config file: " + fileName + ", \nset flag --forceCover=true if you want cover")
 	}
-
 	content := ""
 	content += "mysql:\n"
 	content += "  host: " + cmdRequest.Db.Host + "\n"

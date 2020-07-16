@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,7 +11,7 @@ import (
 	"strings"
 	"sync"
 )
-
+// request arguments manager
 type CmdRequest struct {
 	Db  dbConfig
 	Gen genConfig
@@ -90,9 +89,6 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
 	if appPath, err = os.Getwd(); err != nil {
 		printErrorAndExit(err)
 	}
-	path, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	log.Println(path)
-	log.Println(absPath, appPath)
 	if absPath == appPath {
 		packageName = "main"
 	} else {
@@ -100,7 +96,7 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
 	}
 	return absPath, packageName
 }
-
+// bind viper value
 func (g *CmdRequest) SetDataByViper() {
 	g.Gen.SearchTableName = viper.GetString("gen.searchTableName")
 	g.Gen.OutPutPath = viper.GetString("gen.outPutPath")
@@ -114,15 +110,15 @@ func (g *CmdRequest) SetDataByViper() {
 	g.Db.Username = viper.GetString("mysql.username")
 	g.Db.Password = viper.GetString("mysql.password")
 }
-func (cmdRequest *CmdRequest) selfTable2Struct() {
+func (g *CmdRequest) selfTable2Struct() {
 	initSchemaDb()
-	fmt.Println("search table " + cmdRequest.Gen.SearchTableName + " in db: " + cmdRequest.Db.Database)
-	tables := cmdRequest.getTables()
+	fmt.Println("search table " + g.Gen.SearchTableName + " in db: " + g.Db.Database)
+	tables := g.getTables()
 	for _, tn := range tables {
-		cmdRequest.Wg.Add(1)
-		go mkStructFromSelfTable(tn, cmdRequest)
+		g.Wg.Add(1)
+		go mkStructFromSelfTable(tn, g)
 	}
-	cmdRequest.Wg.Wait()
+	g.Wg.Wait()
 	if len(tables) == 0 {
 		fmt.Println("\n\n  nothing found out :( ")
 	}
@@ -151,22 +147,28 @@ func (g *CmdRequest) localMap2Struct() {
 	}
 	os.Exit(0)
 }
-func (cmdRequest *CmdRequest) genTable2Struct() {
+func (g *CmdRequest) genTable2Struct() {
 	initSchemaDb()
 	initGenDb()
-	fmt.Println("search table " + cmdRequest.Gen.getSearchTableName() + " in gen table: get_model.struct_mappers")
-	tables := cmdRequest.getTables()
+	fmt.Println("search table " + g.Gen.getSearchTableName() + " in gen table: get_model.struct_mappers")
+	tables := g.getTables()
 	for _, tn := range tables {
-		cmdRequest.Wg.Add(1)
-		go mkStructFromGenTable(tn, cmdRequest)
+		g.Wg.Add(1)
+		go mkStructFromGenTable(tn, g)
 	}
-	cmdRequest.Wg.Wait()
+	g.Wg.Wait()
 	if len(tables) == 0 {
 		fmt.Println("\n\n  nothing found out :( ")
 	}
 	os.Exit(0)
 }
+// create model struct file
 func (g *CmdRequest) CreateModelStruct() {
+    defer func() {
+        if r := recover(); r != nil {
+            printErrorMsg(r)
+        }
+    }()
 	switch g.Gen.SourceType {
 	case sourceSelfTable:
 		g.selfTable2Struct()

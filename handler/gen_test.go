@@ -45,7 +45,7 @@ func TestGenerateStructFromGenTable(t *testing.T) {
 }
 
 func mockGenMapper() *[]structMapper {
-	mapSlice := []structMapper{}
+    var mapSlice []structMapper
 	sm := structMapper{
 		DbName:         "test",
 		TableName:      "student",
@@ -63,7 +63,7 @@ func mockGenMapper() *[]structMapper {
 }
 
 func mockFieldMap() *fieldMap {
-	fields := []fieldNameAndType{}
+    var fields []fieldNameAndType
 	nameAndType := fieldNameAndType{}
 	nameAndType["Id"] = "int"
 	fields = append(fields, nameAndType)
