@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 )
@@ -90,7 +91,7 @@ func writeFile(fileName, content string) error {
 	}
 	return nil
 }
-func mkGolangFile(outPutPath, structName string) (fileName string, err error) {
+func spellGolangFile(outPutPath, structName string) (fileName string, err error) {
 	goFileName := structName + ".go"
 	fileName = filepath.Join(outPutPath, goFileName)
 	if isExist(fileName) && !viper.GetBool("forceCover") {
@@ -120,4 +121,13 @@ func printErrorMsg(msg interface{}) {
 	fmt.Print("  ")
 	fmt.Print(msg)
 	fmt.Print("\n")
+}
+func isFileNameMatch(pattern, suffix, fileName string) bool {
+	fileName = strings.TrimSuffix(fileName, YamlMap)
+	pattern = camelString(pattern) + suffix
+	if strings.Contains(pattern, "*") {
+		isMatch, _ := regexp.MatchString(strings.Replace(pattern, "*", "(.*)", -1), fileName)
+		return isMatch
+	}
+	return fileName == pattern
 }

@@ -48,17 +48,13 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
 	content += "  password: " + cmdRequest.Db.Password + "\n"
 	content += "gen:\n"
 	content += "  searchTableName: " + cmdRequest.Gen.SearchTableName + " # support patten with '*'\n"
-	content += "  outPutPath: " + cmdRequest.Gen.OutPutPath + " # file path\n"
-	content += "  isLowerCamelCaseJson: " + strconv.FormatBool(cmdRequest.Gen.IsLowerCamelCaseJson) + " # true: model json tag use lower camelcase, like 'camelCase', not like 'CamelCase'\n"
-	content += "  hasGormTag: " + strconv.FormatBool(true) + " # gorm tag, `gorm:\"column:name\"`\n"
-	content += "  hasJsonTag: " + strconv.FormatBool(true) + " # json tag, `json:\"age\"`\n"
-	content += "  hasGureguNullPackage: " + strconv.FormatBool(cmdRequest.Gen.HasGureguNullPackage) + " # have package: \"gopkg.in/guregu/null.v3\"\n"
+	content += "  outDir: " + cmdRequest.Gen.OutDir + " # file path\n"
+	content += "  jsonUcFirst: " + strconv.FormatBool(cmdRequest.Gen.JSONUcFirst) + " # true: model json tag use lower camelcase, like 'camelCase', not like 'CamelCase'\n"
 	content += "  modelSuffix: " + cmdRequest.Gen.ModelSuffix + " # model name suffix\n"
-	content += "  sourceType: " + cmdRequest.Gen.SourceType + " # self-table: struct create by connect mysql tables; local-mapper: struct create by local mappers; gen-table: struct create by table \"gen_model_mapper\"\n"
-	content += "  persistType: " + cmdRequest.Gen.PersistType + " # persist struct mappers at local-mapper or gen-table\n"
+	content += "  source: " + cmdRequest.Gen.Source + " # self-table: struct create by connect mysql tables; local-mapper: struct create by local mappers; db-mapper: struct create by table \"gen_model_mapper\"\n"
+	content += "  persist: " + cmdRequest.Gen.Persist + " # persist struct mappers at local-mapper or db-mapper\n"
 
 	fmt.Print("\ncreate yaml " + fileName)
-	// fmt.Println(content)
 	err := writeFile(fileName, content)
 	if err != nil {
 		printMessageAndExit(" failed " + err.Error())

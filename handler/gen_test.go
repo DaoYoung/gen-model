@@ -7,40 +7,42 @@ import (
 	"testing"
 )
 
+var modelDir = "../model"
+
 func TestGenerateStructFromSelfTable(t *testing.T) {
 	student := mockTable()
-	cmdRequest := mockConfig(student)
+	cmdRequest := mockCmdRequestByTable(student)
 	log.Println("getSearchTableName", cmdRequest.Gen.getSearchTableName())
 	log.Println("getSearchStructName", cmdRequest.Gen.getSearchStructName())
 	log.Println("getTables", cmdRequest.getTables())
-	log.Println("getOutPutPath", cmdRequest.getOutPutPath())
+	log.Println("getOutDir", cmdRequest.getOutDir())
 	structName := camelString(student.TableName)
 	modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
-	columnProcessor := getProcessorSelfTable(student, cmdRequest)
+	columnProcessor := getProcessorSelfTable(student)
 	outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
 }
 
 func TestGenerateStructFromYaml(t *testing.T) {
 	student := mockTable()
-	cmdRequest := mockConfig(student)
+	cmdRequest := mockCmdRequestByTable(student)
 	cmdRequest.Gen.ModelSuffix = "VO"
-	cmdRequest.Gen.PersistType = ""
-	cmdRequest.Gen.SourceType = sourceLocal
+	cmdRequest.Gen.Persist = ""
+	cmdRequest.Gen.Source = sourceLocal
 	log.Printf("%+v", cmdRequest)
 	viper.Set("mock_map", mockFieldMap())
-	mp, _ := filepath.Abs("../model")
+	mp, _ := filepath.Abs(modelDir)
 	cmdRequest.Wg.Add(1)
 	mkStructFromYaml(cmdRequest, "StudentVO", "model", mp)
 }
 
 func TestGenerateStructFromGenTable(t *testing.T) {
 	student := mockTable()
-	cmdRequest := mockConfig(student)
+	cmdRequest := mockCmdRequestByTable(student)
 	cmdRequest.Gen.ModelSuffix = "BO"
-	cmdRequest.Gen.PersistType = ""
+	cmdRequest.Gen.Persist = ""
 	structName := camelString(student.TableName + cmdRequest.Gen.ModelSuffix)
 	modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
-	columnProcessor := getProcessorGenTable(student.TableName, mockGenMapper(), cmdRequest)
+	columnProcessor := getProcessorGenTable(student.TableName, mockGenMapper())
 	outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
 }
 
@@ -89,10 +91,9 @@ func mockTable() *dealTable {
 	dealTable.Columns = &studentColumns
 	return dealTable
 }
-
-func mockConfig(dt *dealTable) *CmdRequest {
-	mp, _ := filepath.Abs("../model")
+func mockCmdRequestByTable(dt *dealTable) *CmdRequest {
+	mp, _ := filepath.Abs(modelDir)
 	mkdir(mp)
-	genConf := genConfig{SearchTableName: dt.TableName, OutPutPath: "../model", IsLowerCamelCaseJson: true, HasGormTag: true, HasJsonTag: true, HasGureguNullPackage: true, SourceType: sourceSelfTable, PersistType: sourceLocal}
+	genConf := genConfig{SearchTableName: dt.TableName, OutDir: modelDir, Source: sourceSelfTable, Persist: sourceLocal}
 	return &CmdRequest{Gen: genConf}
 }

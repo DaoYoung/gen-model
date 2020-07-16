@@ -27,18 +27,6 @@ func (columnProcessor *columnProcessor) buildImportSegment() {
 	}
 }
 
-func mkStructFromGenTable(tableName string, cmdRequest *CmdRequest) {
-	defer cmdRequest.Wg.Done()
-	structName := camelString(tableName + cmdRequest.Gen.ModelSuffix)
-	mapSlice, err := findStructMapper(cmdRequest.Db.Database, tableName, structName)
-	if err != nil {
-		fmt.Println(tableName + ": " + err.Error())
-		return
-	}
-	modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
-	columnProcessor := getProcessorGenTable(tableName, mapSlice, cmdRequest)
-	outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
-}
 func mkStructFromSelfTable(tableName string, cmdRequest *CmdRequest) {
 	defer cmdRequest.Wg.Done()
 	dealTable := &(dealTable{})
@@ -50,25 +38,39 @@ func mkStructFromSelfTable(tableName string, cmdRequest *CmdRequest) {
 	}
 	structName := camelString(tableName + cmdRequest.Gen.ModelSuffix)
 	modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
-	columnProcessor := getProcessorSelfTable(dealTable, cmdRequest)
+	columnProcessor := getProcessorSelfTable(dealTable)
 	outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
 }
-
-func getProcessorSelfTable(dealTable *dealTable, cmdRequest *CmdRequest) *columnProcessor {
+func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPath string) {
+	defer cmdRequest.Wg.Done()
+	structName := strings.TrimSuffix(mapfileName, YamlMap)
+	columnProcessor := getProcessorYaml(mapfileName, modelPath)
+	outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
+}
+func mkStructFromGenTable(tableName string, cmdRequest *CmdRequest) {
+	defer cmdRequest.Wg.Done()
+	structName := camelString(tableName + cmdRequest.Gen.ModelSuffix)
+	mapSlice, err := findStructMapper(cmdRequest.Db.Database, tableName, structName)
+	if err != nil {
+		fmt.Println(tableName + ": " + err.Error())
+		return
+	}
+	modelPath, packageName := cmdRequest.getAbsPathAndPackageName()
+	columnProcessor := getProcessorGenTable(tableName, mapSlice)
+	outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
+}
+func getProcessorSelfTable(dealTable *dealTable) *columnProcessor {
 	columnProcessor := &(columnProcessor{})
 	columnProcessor.TableName = dealTable.TableName
 	columns := *dealTable.Columns
 	for _, column := range columns {
-		structAttr := camelString(column.ColumnName)
 		fieldType := mysqlTypeToGoType(column.DataType, column.isNull())
-		nameAndType := fieldNameAndType{}
-		nameAndType[structAttr] = fieldType
-		oneFieldProcess(columnProcessor, nameAndType, cmdRequest)
+		oneFieldProcess(columnProcessor, camelString(column.ColumnName), fieldType, column.ColumnComment)
 	}
 	columnProcessor.buildImportSegment()
 	return columnProcessor
 }
-func getProcessorYaml(cmdRequest *CmdRequest, mapfileName, modelPath string) *columnProcessor {
+func getProcessorYaml(mapfileName, modelPath string) *columnProcessor {
 	columnProcessor := &(columnProcessor{})
 	var fm *fieldMap
 	var ok bool
@@ -77,40 +79,39 @@ func getProcessorYaml(cmdRequest *CmdRequest, mapfileName, modelPath string) *co
 	}
 	columnProcessor.TableName = fm.TableName
 	for _, fieldNameAndType := range fm.Fields {
-		oneFieldProcess(columnProcessor, fieldNameAndType, cmdRequest)
+		fieldName, fieldType := fieldNameAndType.getValues()
+		oneFieldProcess(columnProcessor, fieldName, fieldType, "")
 	}
 	columnProcessor.buildImportSegment()
 	return columnProcessor
 }
-func getProcessorGenTable(tableName string, mapSlice *[]structMapper, cmdRequest *CmdRequest) *columnProcessor {
+func getProcessorGenTable(tableName string, mapSlice *[]structMapper) *columnProcessor {
 	columnProcessor := &(columnProcessor{})
 	columnProcessor.TableName = tableName
 	for _, sm := range *mapSlice {
-		nameAndType := fieldNameAndType{}
-		nameAndType[sm.ModelFieldName] = sm.ModelFieldType
-		oneFieldProcess(columnProcessor, nameAndType, cmdRequest)
+		oneFieldProcess(columnProcessor, sm.ModelFieldName, sm.ModelFieldType, sm.ModelFieldComment)
 	}
 	columnProcessor.buildImportSegment()
 	return columnProcessor
 }
-func oneFieldProcess(columnProcessor *columnProcessor, fieldNameAndType fieldNameAndType, cmdRequest *CmdRequest) {
-	var structTags []string
-	structAttr, fieldType := fieldNameAndType.getValues()
+func oneFieldProcess(columnProcessor *columnProcessor, fieldName, fieldType, fieldComment string) {
+	var fieldTags []string
+	nameAndType := fieldNameAndType{}
+	nameAndType[fieldName] = fieldType
 	needPackage := getImportPackage(fieldType)
-	columnProcessor.Attrs = append(columnProcessor.Attrs, fieldNameAndType)
+	columnProcessor.Attrs = append(columnProcessor.Attrs, nameAndType)
 	if needPackage != "" && !containString(columnProcessor.ImportPackages, needPackage) {
 		columnProcessor.ImportPackages = append(columnProcessor.ImportPackages, needPackage)
 	}
-	if cmdRequest.Gen.HasGormTag {
-		structTags = append(structTags, fmt.Sprintf("gorm:\"column:%s\"", snakeString(structAttr)))
-	}
-	if cmdRequest.Gen.HasJsonTag {
-		structTags = append(structTags, fmt.Sprintf("json:\"%s\"", lcfirst(structAttr)))
-	}
+	fieldTags = append(fieldTags, fmt.Sprintf("gorm:\"column:%s\"", snakeString(fieldName)))
+	fieldTags = append(fieldTags, fmt.Sprintf("json:\"%s\"", lcfirst(fieldName)))
 	columnProcessor.AttrSegment += fmt.Sprintf("\n    %s %s `%s`",
-		structAttr,
+		fieldName,
 		fieldType,
-		strings.Join(structTags, " "))
+		strings.Join(fieldTags, " "))
+	if fieldComment != "" {
+		columnProcessor.AttrSegment += "// " + fieldComment
+	}
 }
 func saveStructMappers(cmdRequest *CmdRequest, columnProcessor *columnProcessor, structName, modelPath string) (paper string) {
 	var err error
@@ -164,10 +165,4 @@ func outputStruct(cmdRequest *CmdRequest, columnProcessor *columnProcessor, mode
 		paper += " success."
 		paper += saveStructMappers(cmdRequest, columnProcessor, structName, modelPath)
 	}
-}
-func mkStructFromYaml(cmdRequest *CmdRequest, mapfileName, packageName, modelPath string) {
-	defer cmdRequest.Wg.Done()
-	structName := strings.TrimSuffix(mapfileName, YamlMap)
-	columnProcessor := getProcessorYaml(cmdRequest, mapfileName, modelPath)
-	outputStruct(cmdRequest, columnProcessor, modelPath, packageName, structName)
 }

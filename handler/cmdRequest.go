@@ -7,7 +7,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 )
@@ -28,15 +27,25 @@ type dbConfig struct {
 }
 
 type genConfig struct {
-	SearchTableName      string
-	OutPutPath           string
-	IsLowerCamelCaseJson bool
-	HasGormTag           bool   // gorm tag, `gorm:"column:name"`
-	HasJsonTag           bool   // json tag, `json:"age"`
-	HasGureguNullPackage bool   // have package: "gopkg.in/guregu/null.v3"
-	ModelSuffix          string // model name suffix
-	SourceType           string // self-table: struct create by connect mysql tables local-mapper: struct create by local mappers gen-table: struct create by table "gen_model_mapper"
-	PersistType          string // persist struct mappers at local-mapper or gen-table
+	SearchTableName string
+
+	OutDir string
+
+	// true: uppercase first letter in json tag
+	// (default) false: lowercase first letter in json tag
+	JSONUcFirst bool
+
+	// model name suffix
+	ModelSuffix string
+
+	// self-table: golang struct create by your tables
+	// local-mapper: use local files to create
+	// db-mapper: create struct with db table: gen_model.struct_mappers
+	Source string
+
+	// local-mapper: save mappers at local files
+	// db-mapper: create db table: gen_model.struct_mappers, and save mappers in it
+	Persist string
 }
 
 func (gc *genConfig) getSearchTableName() string {
@@ -46,16 +55,16 @@ func (gc *genConfig) getSearchStructName() string {
 	return camelString(gc.SearchTableName) + gc.ModelSuffix
 }
 func (gc *genConfig) isBuildLocalMapper() bool {
-	return gc.PersistType == sourceLocal && gc.SourceType != sourceLocal
+	return gc.Persist == sourceLocal && gc.Source != sourceLocal
 }
 func (gc *genConfig) isBuildGenTable() bool {
-	return gc.PersistType == sourceGenTable && gc.SourceType != sourceGenTable
+	return gc.Persist == sourceGenTable && gc.Source != sourceGenTable
 }
 
 const (
 	sourceSelfTable = "self-table"
 	sourceLocal     = "local-mapper"
-	sourceGenTable  = "gen-table"
+	sourceGenTable  = "db-mapper"
 )
 
 func (g *CmdRequest) getTables() []string {
@@ -65,27 +74,27 @@ func (g *CmdRequest) getTables() []string {
 	return []string{g.Gen.SearchTableName}
 }
 
-func (g *CmdRequest) getOutPutPath() string {
-	if g.Gen.OutPutPath == "" {
-		g.Gen.OutPutPath = "model"
+func (g *CmdRequest) getOutDir() string {
+	if g.Gen.OutDir == "" {
+		g.Gen.OutDir = "model"
 	}
-	p, _ := filepath.Abs(g.Gen.OutPutPath)
+	p, _ := filepath.Abs(g.Gen.OutDir)
 	outDir := filepath.Dir(p)
 	mkdir(outDir)
 	return p
 }
 
 func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
-	if g.Gen.OutPutPath == "" {
-		g.Gen.OutPutPath = "model"
+	if g.Gen.OutDir == "" {
+		g.Gen.OutDir = "model"
 	}
 	var err error
 	var appPath string
-	if absPath, err = filepath.Abs(g.Gen.OutPutPath); err != nil {
+	if absPath, err = filepath.Abs(g.Gen.OutDir); err != nil {
 		printErrorAndExit(err)
 	}
 	if !isExist(absPath) {
-		printMessageAndExit("OutPutPath not exist: " + absPath)
+		printMessageAndExit("OutDir not exist: " + absPath)
 	}
 	if appPath, err = os.Getwd(); err != nil {
 		printErrorAndExit(err)
@@ -101,17 +110,18 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
 // SetDataByViper bind viper value
 func (g *CmdRequest) SetDataByViper() {
 	g.Gen.SearchTableName = viper.GetString("gen.searchTableName")
-	g.Gen.OutPutPath = viper.GetString("gen.outPutPath")
-	g.Gen.IsLowerCamelCaseJson = viper.GetBool("gen.isLowerCamelCaseJson")
+	g.Gen.OutDir = viper.GetString("gen.outDir")
+	g.Gen.JSONUcFirst = viper.GetBool("gen.jsonUcFirst")
 	g.Gen.ModelSuffix = viper.GetString("gen.modelSuffix")
-	g.Gen.SourceType = viper.GetString("gen.sourceType")
-	g.Gen.PersistType = viper.GetString("gen.persistType")
+	g.Gen.Source = viper.GetString("gen.source")
+	g.Gen.Persist = viper.GetString("gen.persist")
 	g.Db.Host = viper.GetString("mysql.host")
 	g.Db.Database = viper.GetString("mysql.database")
 	g.Db.Port = viper.GetInt("mysql.port")
 	g.Db.Username = viper.GetString("mysql.username")
 	g.Db.Password = viper.GetString("mysql.password")
 }
+
 func (g *CmdRequest) selfTable2Struct() {
 	initSchemaDb()
 	fmt.Println("search table " + g.Gen.SearchTableName + " in db: " + g.Db.Database)
@@ -126,6 +136,7 @@ func (g *CmdRequest) selfTable2Struct() {
 	}
 	os.Exit(0)
 }
+
 func (g *CmdRequest) localMap2Struct() {
 	modelPath, packageName := g.getAbsPathAndPackageName()
 	fmt.Println("pattern: " + g.Gen.getSearchStructName() + " search mapper yaml at " + modelPath)
@@ -149,6 +160,7 @@ func (g *CmdRequest) localMap2Struct() {
 	}
 	os.Exit(0)
 }
+
 func (g *CmdRequest) genTable2Struct() {
 	initSchemaDb()
 	initGenDb()
@@ -165,14 +177,14 @@ func (g *CmdRequest) genTable2Struct() {
 	os.Exit(0)
 }
 
-// CreateModelStruct create model struct file
+// CreateModelStruct hanlder
 func (g *CmdRequest) CreateModelStruct() {
 	defer func() {
 		if r := recover(); r != nil {
 			printErrorMsg(r)
 		}
 	}()
-	switch g.Gen.SourceType {
+	switch g.Gen.Source {
 	case sourceSelfTable:
 		g.selfTable2Struct()
 		break
@@ -185,14 +197,4 @@ func (g *CmdRequest) CreateModelStruct() {
 	default:
 		printMessageAndExit("wrong sourceType, set value with \"" + sourceSelfTable + "\" or \"" + sourceLocal + "\" or \"" + sourceGenTable + "\"")
 	}
-}
-
-func isFileNameMatch(pattern, suffix, fileName string) bool {
-	fileName = strings.TrimSuffix(fileName, YamlMap)
-	pattern = camelString(pattern) + suffix
-	if strings.Contains(pattern, "*") {
-		isMatch, _ := regexp.MatchString(strings.Replace(pattern, "*", "(.*)", -1), fileName)
-		return isMatch
-	}
-	return fileName == pattern
 }

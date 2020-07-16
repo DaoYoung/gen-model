@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.com/DaoYoung/gen-model.svg?branch=master)](https://travis-ci.com/DaoYoung/gen-model)
 [![Go Report Card](https://goreportcard.com/badge/github.com/DaoYoung/gen-model)](https://goreportcard.com/report/github.com/DaoYoung/gen-model)
-[![GoDoc](https://godoc.org/github.com/xxjwxc/gormt?status.svg)](https://godoc.org/github.com/xxjwxc/gormt)
-[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go) 
+<!--[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go) -->
 
 [中文教程](https://www.jianshu.com/p/0d1d942d281e)
 # gen-model
@@ -41,7 +40,7 @@ gen-model create -r=local-mapper -f=true
 ```
 5. now you can persist mappers at local yaml, it also support save at mysql database.
 ```
-gen-model create -y=gen-table -f=true
+gen-model create -y=db-mapper -f=true
 ```
 6. see what gen-model can do.
 ```

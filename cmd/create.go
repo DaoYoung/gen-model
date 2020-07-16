@@ -24,14 +24,15 @@ func init() {
 	rootCmd.AddCommand(createCmd)
 	createCmd.Flags().StringVarP(&CmdRequest.Gen.SearchTableName, "searchTableName", "s", "", "set your searchTableName, support patten with '*'")
 	createCmd.Flags().StringVarP(&CmdRequest.Gen.ModelSuffix, "modelSuffix", "m", "", "model suffix")
-	createCmd.Flags().BoolVarP(&CmdRequest.Gen.IsLowerCamelCaseJson, "isLowerCamelCaseJson", "i", true, "set IsLowerCamelCaseJson true/false")
+	createCmd.Flags().BoolVarP(&CmdRequest.Gen.JSONUcFirst, "jsonUcFirst", "j", true, "true/false")
+	createCmd.Flags().StringVarP(&CmdRequest.Gen.Source, "source", "r", "self-table", "self-table: create struct by self table \nlocal-mapper: create struct by local mapper \ndb-mapper: create struct by stable \"gen_model_mapper\" table")
+	createCmd.Flags().StringVarP(&CmdRequest.Gen.Persist, "persist", "y", "", "local-mapper: save mappers at local files \ndb-mapper: create db table: gen_model.struct_mappers, and save mappers in it ")
 	flagBindviper(createCmd, false, "searchTableName", "gen.searchTableName")
-	flagBindviper(createCmd, false, "isLowerCamelCaseJson", "gen.isLowerCamelCaseJson")
+	flagBindviper(createCmd, false, "jsonUcFirst", "gen.jsonUcFirst")
 	flagBindviper(createCmd, false, "modelSuffix", "gen.modelSuffix")
-	createCmd.Flags().StringVarP(&CmdRequest.Gen.SourceType, "sourceType", "r", "self-table", "self-table: create struct by self table \nlocal-mapper: create struct by local mapper \ngen-table: create struct by stable \"gen_model_mapper\" table")
-	createCmd.Flags().StringVarP(&CmdRequest.Gen.PersistType, "persistType", "y", "", "local-mapper: generate local struct mappers \ngen-table: generate mapper table \"gen_model_mapper\" ")
 	flagBindviper(createCmd, false, "sourceType", "gen.sourceType")
 	flagBindviper(createCmd, false, "persistType", "gen.persistType")
+
 	createCmd.Flags().Bool("debug", false, "true: print full message")
 	flagBindviper(createCmd, false, "debug", "debug")
 }
@@ -50,16 +51,15 @@ func validArgs() error {
 		return errors.New("mysql.password is empty")
 	}
 	if CmdRequest.Gen.SearchTableName == "" {
-		return errors.New("tableName is empty")
+		return errors.New("searchTableName is empty")
 	}
-	if CmdRequest.Gen.OutPutPath == "" {
-		return errors.New("outPutPath is empty")
+	if CmdRequest.Gen.OutDir == "" {
+		return errors.New("outDir is empty")
 	}
 	return nil
 }
 
 func generateModel() {
-
 	CmdRequest.SetDataByViper()
 	if viper.GetBool("debug") {
 		log.Printf("%+v", CmdRequest)

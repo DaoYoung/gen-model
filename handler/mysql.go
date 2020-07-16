@@ -9,97 +9,55 @@ import (
 
 // Constants for return types of golang
 const (
-	golangByteArray  = "[]byte"
 	gureguNullInt    = "null.Int"
-	sqlNullInt       = "sql.NullInt64"
+	gureguNullFloat  = "null.Float"
+	gureguNullString = "null.String"
+	golangByteArray  = "[]byte"
+	golangString     = "string"
 	golangInt        = "int"
 	golangInt64      = "int64"
-	gureguNullFloat  = "null.Float"
-	sqlNullFloat     = "sql.NullFloat64"
-	golangFloat32    = "float32"
 	golangFloat64    = "float64"
-	gureguNullString = "null.String"
-	sqlNullString    = "sql.NullString"
-	gureguNullTime   = "null.Time"
+	golangNullTime   = "*time.Time"
 	golangTime       = "time.Time"
 )
+
 const (
-	importSql     = "database/sql"
-	importNull    = "gopkg.in/guregu/null.v3"
+	importNull    = "gopkg.in/guregu/null.v4"
 	importTime    = "time"
 	importNothing = ""
 )
 
-func mysqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) (goType string) {
+func mysqlTypeToGoType(mysqlType string, nullable bool) string {
 	switch mysqlType {
 	case "tinyint", "int", "smallint", "mediumint":
 		if nullable {
-			if gureguTypes {
-				goType = gureguNullInt
-			} else {
-				goType = sqlNullInt
-			}
-			break
+			return gureguNullInt
 		}
-		goType = golangInt
-		break
+		return golangInt
 	case "bigint":
 		if nullable {
-			if gureguTypes {
-				goType = gureguNullInt
-			} else {
-				goType = sqlNullInt
-			}
-			break
+			return gureguNullInt
 		}
-		goType = golangInt64
-		break
+		return golangInt64
 	case "char", "enum", "varchar", "longtext", "mediumtext", "text", "tinytext", "json":
 		if nullable {
-			if gureguTypes {
-				goType = gureguNullString
-			}
-			goType = sqlNullString
-			break
+			return gureguNullString
 		}
-		goType = "string"
-		break
+		return golangString
 	case "date", "datetime", "time", "timestamp":
-		if nullable && gureguTypes {
-			goType = gureguNullTime
-		} else {
-			goType = golangTime
-		}
-		break
-	case "decimal", "double":
 		if nullable {
-			if gureguTypes {
-				goType = gureguNullFloat
-			} else {
-				goType = sqlNullFloat
-			}
-			break
+			return golangNullTime
 		}
-		goType = golangFloat64
-		break
-	case "float":
+		return golangTime
+	case "decimal", "double", "float":
 		if nullable {
-			if gureguTypes {
-				goType = gureguNullFloat
-			} else {
-				goType = sqlNullFloat
-			}
-			break
+			return gureguNullFloat
 		}
-		goType = golangFloat32
-		break
+		return golangFloat64
 	case "binary", "blob", "longblob", "mediumblob", "varbinary":
-		goType = golangByteArray
-		break
-	default:
-		goType = ""
+		return golangByteArray
 	}
-	return
+	return ""
 }
 func getImportPackage(golangType string) string {
 	im := importNothing
@@ -107,8 +65,6 @@ func getImportPackage(golangType string) string {
 		return im
 	}
 	switch {
-	case len(golangType) > 2 && golangType[0:3] == "sql":
-		im = importSql
 	case len(golangType) > 3 && golangType[0:4] == "null":
 		im = importNull
 	case len(golangType) > 3 && golangType[0:4] == "time":
@@ -149,6 +105,5 @@ func connectDb(dbName string) (dbPool *gorm.DB) {
 	if viper.GetBool("debug") {
 		dbPool.LogMode(true)
 	}
-	// defer dbPool.Close()
 	return
 }
