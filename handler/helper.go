@@ -113,7 +113,7 @@ func printMessageAndExit(msg string) {
 
 func printErrorAndExit(err error) {
 	printErrorMsg(err.Error())
-	os.Exit(1)
+	exitWithCode(1)
 }
 
 func printErrorMsg(msg interface{}) {
@@ -121,6 +121,14 @@ func printErrorMsg(msg interface{}) {
 	fmt.Print("  ")
 	fmt.Print(msg)
 	fmt.Print("\n")
+}
+
+func exitWithCode(c int) {
+	if viper.GetBool("is_test") {
+		fmt.Print("os exit")
+	} else {
+		os.Exit(c)
+	}
 }
 func isFileNameMatch(pattern, suffix, fileName string) bool {
 	fileName = strings.TrimSuffix(fileName, YamlMap)

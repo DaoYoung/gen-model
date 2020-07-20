@@ -60,7 +60,7 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
 		printMessageAndExit(" failed " + err.Error())
 	}
 	fmt.Print(" success")
-	os.Exit(0)
+	exitWithCode(0)
 }
 
 func genMapYaml(filename string, columnProcessor *columnProcessor) error {

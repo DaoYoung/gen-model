@@ -177,7 +177,7 @@ func (g *CmdRequest) genTable2Struct() {
 	os.Exit(0)
 }
 
-// CreateModelStruct hanlder
+// CreateModelStruct handler
 func (g *CmdRequest) CreateModelStruct() {
 	defer func() {
 		if r := recover(); r != nil {
