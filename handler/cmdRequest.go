@@ -80,6 +80,7 @@ func (g *CmdRequest) getOutDir() string {
 	}
 	p, _ := filepath.Abs(g.Gen.OutDir)
 	outDir := filepath.Dir(p)
+	fmt.Println(p, outDir)
 	mkdir(outDir)
 	return p
 }
