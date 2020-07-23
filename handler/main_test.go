@@ -49,22 +49,21 @@ func (s *gromMockTest) TestSourceSelfTableAndGenLocalMapper() {
 		AddRow(tableName)
 	s.mock.ExpectQuery("SELECT TABLE_NAME FROM (.+)TABLES(.+)").WithArgs(dbName, searchTableNameCondition).WillReturnRows(table)
 	fields := sqlmock.NewRows([]string{"COLUMN_NAME", "COLUMN_KEY", "DATA_TYPE", "IS_NULLABLE", "COLUMN_COMMENT"}).
-		AddRow("id", "", "int", "NO", "").
+		AddRow("id", "", "bigint", "NO", "").
 		AddRow("age", "", "mediumint", "NO", "").
 		AddRow("sex", "", "tinyint", "NO", "1:boy 2:girl").
 		AddRow("job", "", "varchar", "YES", "job description").
+		AddRow("birthday", "", "date", "YES", "").
+		AddRow("avatar", "", "blob", "YES", "").
+		AddRow("admission_score", "", "decimal", "NO", "").
 		AddRow("real_name", "", "varchar", "NO", "job description")
 	s.mock.ExpectQuery("SELECT * (.+)COLUMNS(.+)").WithArgs(dbName, tableName).WillReturnRows(fields)
 	dbSchema = s.Db // setup db connect
 	cr := mockRequest()
 	cr.CreateModelStruct()
-}
-func (s *gromMockTest) TestSourceLocalMapperAndGenTable() {
-	cr := mockRequest()
 	cr.Gen.Source = sourceLocal
 	cr.Gen.Persist = sourceGenTable
 	dbGen = s.Db
-	dbSchema = s.Db
 	cr.CreateModelStruct()
 }
 

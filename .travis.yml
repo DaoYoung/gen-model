@@ -1,12 +1,11 @@
 language: go
 go:
   - 1.14.x
-  - master
 
 go_import_path: github.com/DaoYoung/gen-model
 
 env:
-  - CODECOV_TOKEN="8f72e4be-2659-46e1-b2a7-08dd196cfadf"
+  - CODECOV_TOKEN=8f72e4be-2659-46e1-b2a7-08dd196cfadf
 #before_install:
 #  - go test -cover -v ./...
 
