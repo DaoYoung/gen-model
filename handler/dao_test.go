@@ -93,3 +93,8 @@ func (s *daoMockTest) TestFindStructMapper() {
 	}
 	require.NoError(s.T(), err)
 }
+
+func (s *daoMockTest) TearDownSuite() {
+	initGenDb()
+	connectDb("testdb")
+}

@@ -78,21 +78,30 @@ var dbGen *gorm.DB
 
 func initSchemaDb() {
 	if dbSchema == nil {
-		dbSchema = connectDb("information_schema")
+		var err error
+		if dbSchema, err = connectDb("information_schema"); err != nil {
+			printErrorAndExit(err)
+		}
 	}
 }
 func initGenDb() {
 	initSchemaDb()
-	dbSchema.Exec("create database IF NOT EXISTS gen_model")
+	if dbSchema != nil {
+		dbSchema.Exec("create database IF NOT EXISTS gen_model")
+	}
 	if dbGen == nil {
-		dbGen = connectDb("gen_model")
-		dbGen.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8 comment 'struct mappers'").AutoMigrate(&structMapper{})
-		dbGen.Model(&structMapper{}).AddIndex("idx_db_name", "db_name")
-		dbGen.Model(&structMapper{}).AddIndex("idx_table_name", "table_name")
+		var err error
+		dbGen, err = connectDb("gen_model")
+		if err == nil {
+			dbGen.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8 comment 'struct mappers'").AutoMigrate(&structMapper{})
+			dbGen.Model(&structMapper{}).AddIndex("idx_db_name", "db_name")
+			dbGen.Model(&structMapper{}).AddIndex("idx_table_name", "table_name")
+		} else {
+			printErrorAndExit(err)
+		}
 	}
 }
-func connectDb(dbName string) (dbPool *gorm.DB) {
-	var err error
+func connectDb(dbName string) (dbPool *gorm.DB, err error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
 		viper.GetString("mysql.username"),
@@ -102,7 +111,7 @@ func connectDb(dbName string) (dbPool *gorm.DB) {
 		dbName,
 	)
 	if dbPool, err = gorm.Open("mysql", dsn); err != nil {
-		panic(err)
+		return nil, err
 	}
 	if viper.GetBool("debug") {
 		dbPool.LogMode(true)

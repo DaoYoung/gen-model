@@ -24,6 +24,7 @@ type gromMockTest struct {
 }
 
 func (s *gromMockTest) SetupSuite() {
+	Welcome()
 	db, mock, err := sqlmock.New()
 	s.mock = mock
 	require.NoError(s.T(), err)
