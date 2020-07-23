@@ -1,6 +1,7 @@
 /.idea/
 /release/*
 *.xml
+coverage.txt
 *.exe
 *.yaml
 *.log
