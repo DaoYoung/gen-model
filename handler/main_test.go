@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
@@ -33,6 +34,7 @@ func (s *gromMockTest) SetupSuite() {
 	s.Db.LogMode(false)
 	viper.Set("is_test", true)
 	viper.Set("forceCover", true)
+	viper.Set("debug", true)
 	mockRequest().getOutDir()
 }
 func (s *gromMockTest) AfterTest(_, _ string) {
@@ -99,4 +101,5 @@ func (s *gromMockTest) TestGenConfigYaml() {
 	viper.Set("gen.source", "wrong_source")
 	cr.SetDataByViper()
 	cr.CreateModelStruct()
+	printErrorAndExit(errors.New("test error"))
 }
