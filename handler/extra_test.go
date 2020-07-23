@@ -33,7 +33,7 @@ func TestExtra(t *testing.T) {
 	suite.Run(t, new(gromMockExtra))
 }
 
-func (s *gromMockExtra) TestSourceSelfTableFail() {
+func (s *gromMockExtra) aTestSourceSelfTableFail() {
 	// mock table data
 	row := sqlmock.NewRows([]string{"TABLE_SCHEMA", "TABLE_NAME"}).
 		AddRow(dbName, tableName)
