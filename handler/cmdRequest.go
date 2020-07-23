@@ -164,7 +164,7 @@ func (g *CmdRequest) localMap2Struct() {
 func (g *CmdRequest) genTable2Struct() {
 	initSchemaDb()
 	initGenDb()
-	fmt.Println("search table " + g.Gen.getSearchTableName() + " in gen table: get_model.struct_mappers")
+	fmt.Println("search table " + g.Gen.getSearchTableName() + " in gen table: gen_model.struct_mappers")
 
 	tables := g.getTables()
 	fmt.Println(tables)
@@ -197,6 +197,6 @@ func (g *CmdRequest) CreateModelStruct() {
 		g.genTable2Struct()
 		break
 	default:
-		printMessageAndExit("wrong sourceType, set value with \"" + sourceSelfTable + "\" or \"" + sourceLocal + "\" or \"" + sourceGenTable + "\"")
+		printMessageAndExit("wrong sourceType " + g.Gen.Source + ", set value with \"" + sourceSelfTable + "\" or \"" + sourceLocal + "\" or \"" + sourceGenTable + "\"")
 	}
 }
