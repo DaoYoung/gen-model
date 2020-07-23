@@ -78,11 +78,9 @@ func (g *CmdRequest) getOutDir() string {
 	if g.Gen.OutDir == "" {
 		g.Gen.OutDir = "model"
 	}
-	p, _ := filepath.Abs(g.Gen.OutDir)
-	outDir := filepath.Dir(p)
-	fmt.Println("getOutDir", p, outDir)
+	outDir, _ := filepath.Abs(g.Gen.OutDir)
 	mkdir(outDir)
-	return p
+	return outDir
 }
 
 func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
