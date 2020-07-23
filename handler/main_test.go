@@ -34,7 +34,6 @@ func (s *gromMockTest) SetupSuite() {
 	s.Db.LogMode(false)
 	viper.Set("is_test", true)
 	viper.Set("forceCover", true)
-
 	mockRequest().getOutDir()
 }
 func (s *gromMockTest) AfterTest(_, _ string) {
@@ -102,4 +101,5 @@ func (s *gromMockTest) TestGenConfigYaml() {
 	cr.SetDataByViper()
 	cr.CreateModelStruct()
 	printErrorAndExit(errors.New("test error"))
+
 }

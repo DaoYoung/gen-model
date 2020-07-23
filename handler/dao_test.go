@@ -93,7 +93,14 @@ func (s *daoMockTest) TestFindStructMapper() {
 	}
 	require.NoError(s.T(), err)
 }
-
+func (s *daoMockTest) TestMysqlTypeToGoType() {
+	assert.Equal(s.T(), mysqlTypeToGoType("smallint", true), gureguNullInt, "error smallint")
+	assert.Equal(s.T(), mysqlTypeToGoType("bigint", true), gureguNullInt, "error bigint")
+	assert.Equal(s.T(), mysqlTypeToGoType("double", true), gureguNullFloat, "error double")
+	assert.Equal(s.T(), mysqlTypeToGoType("timestamp", false), golangTime, "error timestamp")
+	assert.Equal(s.T(), mysqlTypeToGoType("enum", false), "", "error enum")
+	assert.Equal(s.T(), getImportPackage(""), importNothing, "error importNothing")
+}
 func (s *daoMockTest) TearDownSuite() {
 	viper.Set("debug", true)
 	dbSchema = nil

@@ -66,4 +66,10 @@ func (s *gromMockExtra) TestPathError() {
 	cr.getAbsPathAndPackageName()
 	cr.Gen.OutDir = "../"
 	cr.getAbsPathAndPackageName()
+
+}
+func (s *gromMockExtra) TestYamlError() {
+	cr := mockRequest()
+	GenConfigYaml(cr)
+	readYamlMap(".fault.yaml", "test")
 }
