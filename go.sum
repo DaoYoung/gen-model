@@ -239,6 +239,8 @@ github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q
 github.com/xiaomeng79/go-log v1.1.1 h1:GpfcwvwYWZsPhobC3tuv0kocWAF3fh0GjiPI/63JcDA=
 github.com/xiaomeng79/go-log v2.0.4+incompatible h1:NB9/mm3CD8a734G85js00Zn0m9f+5nb4MN1c5e7dXkE=
 github.com/xiaomeng79/go-log v2.0.4+incompatible/go.mod h1:xnkLz5QPnoZlnOSgc87/h8S5q93cLwa3tdhnJn7o0Ks=
+github.com/xiaomeng79/go-utils v0.0.0-20181017074258-e4925b865baa h1:m2aSgGuSzlkpSjd6gabLibU3XrbeAPya/Kq1IDmzcKU=
+github.com/xiaomeng79/go-utils v0.0.0-20181017074258-e4925b865baa/go.mod h1:ng7s56w4VEgDyFvuwCrX9q6MFGkkX7DgeI8SCOvro64=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=

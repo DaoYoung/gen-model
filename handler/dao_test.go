@@ -7,15 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"testing"
 )
 
-type gromMockTest struct {
+type daoMockTest struct {
 	suite.Suite
 	Db   *gorm.DB
 	mock sqlmock.Sqlmock
 }
 
-func (s *gromMockTest) SetupSuite() {
+func (s *daoMockTest) SetupSuite() {
 	db, mock, err := sqlmock.New()
 	s.mock = mock
 	require.NoError(s.T(), err)
@@ -25,13 +26,13 @@ func (s *gromMockTest) SetupSuite() {
 	viper.Set("is_test", true)
 	viper.Set("forceCover", true)
 }
-func (s *gromMockTest) AfterTest(_, _ string) {
+func (s *daoMockTest) AfterTest(_, _ string) {
 	require.NoError(s.T(), s.mock.ExpectationsWereMet())
 }
-func TestInit(t *testing.T) {
-	suite.Run(t, new(gromMockTest))
+func TestDao(t *testing.T) {
+	suite.Run(t, new(daoMockTest))
 }
-func (s *gromMockTest) TestMatchTables() {
+func (s *daoMockTest) TestMatchTables() {
 	var (
 		dbName    = "edu"
 		tableName = "stu%"
@@ -52,7 +53,7 @@ func (s *gromMockTest) TestMatchTables() {
 	}
 }
 
-func (s *gromMockTest) TestGetOneTableColumns() {
+func (s *daoMockTest) TestGetOneTableColumns() {
 	var (
 		dbName    = "edu"
 		tableName = "student"
@@ -69,7 +70,7 @@ func (s *gromMockTest) TestGetOneTableColumns() {
 	require.NoError(s.T(), nil)
 }
 
-func (s *gromMockTest) TestFindStructMapper() {
+func (s *daoMockTest) TestFindStructMapper() {
 	var (
 		dbName     = "edu"
 		tableName  = "student"

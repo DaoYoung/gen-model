@@ -108,7 +108,7 @@ func Welcome() {
 
 func printMessageAndExit(msg string) {
 	printErrorMsg(msg)
-	os.Exit(1)
+	exitWithCode(1)
 }
 
 func printErrorAndExit(err error) {
@@ -125,7 +125,7 @@ func printErrorMsg(msg interface{}) {
 
 func exitWithCode(c int) {
 	if viper.GetBool("is_test") {
-		fmt.Print("os exit")
+		fmt.Print("  os exit")
 	} else {
 		os.Exit(c)
 	}

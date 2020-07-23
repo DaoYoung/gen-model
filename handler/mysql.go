@@ -67,7 +67,7 @@ func getImportPackage(golangType string) string {
 	switch {
 	case len(golangType) > 3 && golangType[0:4] == "null":
 		im = importNull
-	case len(golangType) > 3 && golangType[0:4] == "time":
+	case len(golangType) > 3 && (golangType[0:4] == "time" || golangType[1:5] == "time"):
 		im = importTime
 	}
 	return im
@@ -84,10 +84,12 @@ func initSchemaDb() {
 func initGenDb() {
 	initSchemaDb()
 	dbSchema.Exec("create database IF NOT EXISTS gen_model")
-	dbGen = connectDb("gen_model")
-	dbGen.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8 comment 'struct mappers'").AutoMigrate(&structMapper{})
-	dbGen.Model(&structMapper{}).AddIndex("idx_db_name", "db_name")
-	dbGen.Model(&structMapper{}).AddIndex("idx_table_name", "table_name")
+	if dbGen == nil {
+		dbGen = connectDb("gen_model")
+		dbGen.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8 comment 'struct mappers'").AutoMigrate(&structMapper{})
+		dbGen.Model(&structMapper{}).AddIndex("idx_db_name", "db_name")
+		dbGen.Model(&structMapper{}).AddIndex("idx_table_name", "table_name")
+	}
 }
 func connectDb(dbName string) (dbPool *gorm.DB) {
 	var err error

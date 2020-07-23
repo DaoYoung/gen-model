@@ -18,9 +18,10 @@ require (
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.4.0
 	github.com/xiaomeng79/go-log v2.0.4+incompatible
+	github.com/xiaomeng79/go-utils v0.0.0-20181017074258-e4925b865baa
 	golang.org/x/sys v0.0.0-20200622214017-ed371f2e16b4 // indirect
 	golang.org/x/text v0.3.3 // indirect
-	gopkg.in/guregu/null.v4 v4.0.0 // indirect
+	gopkg.in/guregu/null.v4 v4.0.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0

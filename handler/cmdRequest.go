@@ -134,7 +134,7 @@ func (g *CmdRequest) selfTable2Struct() {
 	if len(tables) == 0 {
 		fmt.Println("\n\n  nothing found out :( ")
 	}
-	os.Exit(0)
+	exitWithCode(0)
 }
 
 func (g *CmdRequest) localMap2Struct() {
@@ -158,14 +158,16 @@ func (g *CmdRequest) localMap2Struct() {
 	if count == 0 {
 		fmt.Println("\n\n  none yaml found out :( ")
 	}
-	os.Exit(0)
+	exitWithCode(0)
 }
 
 func (g *CmdRequest) genTable2Struct() {
 	initSchemaDb()
 	initGenDb()
 	fmt.Println("search table " + g.Gen.getSearchTableName() + " in gen table: get_model.struct_mappers")
+
 	tables := g.getTables()
+	fmt.Println(tables)
 	for _, tn := range tables {
 		g.Wg.Add(1)
 		go mkStructFromGenTable(tn, g)
@@ -174,7 +176,7 @@ func (g *CmdRequest) genTable2Struct() {
 	if len(tables) == 0 {
 		fmt.Println("\n\n  nothing found out :( ")
 	}
-	os.Exit(0)
+	exitWithCode(0)
 }
 
 // CreateModelStruct handler
