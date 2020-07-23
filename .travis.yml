@@ -5,6 +5,8 @@ go:
 
 go_import_path: github.com/DaoYoung/gen-model
 
+env:
+  - CODECOV_TOKEN="8f72e4be-2659-46e1-b2a7-08dd196cfadf"
 #before_install:
 #  - go test -cover -v ./...
 
@@ -12,5 +14,5 @@ script:
   - go test -coverprofile=coverage.txt -v ./...
   - go tool cover -func=coverage.txt
 #
-#after_success:
-#  - bash <(curl -s https://codecov.io/bash)
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
