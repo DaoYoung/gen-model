@@ -95,6 +95,8 @@ func (s *daoMockTest) TestFindStructMapper() {
 }
 
 func (s *daoMockTest) TearDownSuite() {
+	viper.Set("debug", true)
+	dbSchema = nil
+	dbGen = nil
 	initGenDb()
-	connectDb("testdb")
 }
