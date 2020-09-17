@@ -31,17 +31,13 @@ gen-model create --persist=local-mapper
 
 gen-model create --persist=local-mapper -f=true
 ```
-<p align="center">
-  <img width="700" align="center" src="./step1-3.gif" alt="demo"/>
-</p>
+![image](https://upload.cc/i1/2020/09/17/X4Q0C2.gif)
 4. rename mapper file from `${struct}FieldMapper.yaml` to `${struct}VOFieldMapper.yaml`, and delete one line after fields
 ```
 gen-model create --source=local-mapper --forceCover=true --modelSuffix=VO
 # it will generate `${struct}VO.go`
 ```
-<p align="center">
-  <img width="700" align="center" src="./step4.gif" alt="demo"/>
-</p>
+![image](https://upload.cc/i1/2020/09/17/sSbIDA.gif)
 5. persist mapper data in database just use `db-mapper` instead of `local-mapper`.
 ```
 gen-model create --persist=db-mapper --forceCover=true
