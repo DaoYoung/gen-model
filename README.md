@@ -31,13 +31,13 @@ gen-model create --persist=local-mapper
 
 gen-model create --persist=local-mapper -f=true
 ```
-![create-model](./step1-3.gif)
+![image](https://github.com/DaoYoung/gen-model/blob/master/step1-3.gif)
 4. rename mapper file from `${struct}FieldMapper.yaml` to `${struct}VOFieldMapper.yaml`, and delete one line after fields
 ```
 gen-model create --source=local-mapper --forceCover=true --modelSuffix=VO
 # it will generate `${struct}VO.go`
 ```
-![create-model](./step4.gif)
+![image](./step4.gif)
 5. persist mapper data in database just use `db-mapper` instead of `local-mapper`.
 ```
 gen-model create --persist=db-mapper --forceCover=true
