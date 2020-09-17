@@ -6,9 +6,9 @@
 [中文教程](https://www.jianshu.com/p/0d1d942d281e)
 # gen-model
 ### Features
-* Generate struct file by DB tables
-* One table has many struct
-* Persist mappers from table column to struct attributes
+* generate struct file by DB tables
+* one table has many struct
+* persist mappers from table column to struct attributes
 ### Install
 ```
 go get -u github.com/DaoYoung/gen-model
@@ -19,26 +19,28 @@ go get -u github.com/DaoYoung/gen-model
 cd ${your_project_dir}
 gen-model init
 ```
-2. change `mysql.*` `gen.searchTableName` value in `.gen-model.yaml`, generate struct from mysql tables
+2. change `mysql.*` `gen.searchTableName` value in `.gen-model.yaml`, then run
 ```
 gen-model create
 ```
-3. create local mappers for struct 
+3. create local mappers for struct
 ```
-gen-model create --persistType=local-mapper
+gen-model create --persist=local-mapper
 
 # it will fail, when run after step 2, because struct file is already exist, it's avoid to cover whole file. you can set `-f=true` to cover it.
 
-gen-model create --persistType=local-mapper --forceCover=true
+gen-model create --persist=local-mapper -f=true
 ```
+![create-model](./step1-3.gif)
 4. rename mapper file from `${struct}FieldMapper.yaml` to `${struct}VOFieldMapper.yaml`, and delete one line after fields
 ```
-gen-model create --sourceType=local-mapper --forceCover=true --modelSuffix=VO
+gen-model create --source=local-mapper --forceCover=true --modelSuffix=VO
 # it will generate `${struct}VO.go`
 ```
-5. persist mapper data in database just user `db-mapper` instead of `local-mapper`.
+![create-model](./step4.gif)
+5. persist mapper data in database just use `db-mapper` instead of `local-mapper`.
 ```
-gen-model create --persistType=db-mapper --forceCover=true
+gen-model create --persist=db-mapper --forceCover=true
 # it means, you can manage struct for multiple project.
 # this require mysql `Create` privilege
 ```

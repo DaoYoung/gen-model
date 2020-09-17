@@ -93,7 +93,8 @@ func (g *CmdRequest) getAbsPathAndPackageName() (absPath, packageName string) {
 		printErrorAndExit(err)
 	}
 	if !isExist(absPath) {
-		printMessageAndExit("OutDir not exist: " + absPath)
+		mkdir(absPath)
+		// printMessageAndExit("OutDir not exist: " + absPath)
 	}
 	if appPath, err = os.Getwd(); err != nil {
 		printErrorAndExit(err)
@@ -196,6 +197,6 @@ func (g *CmdRequest) CreateModelStruct() {
 		g.genTable2Struct()
 		break
 	default:
-		printMessageAndExit("wrong sourceType " + g.Gen.Source + ", set value with \"" + sourceSelfTable + "\" or \"" + sourceLocal + "\" or \"" + sourceGenTable + "\"")
+		printMessageAndExit("wrong source " + g.Gen.Source + ", set value with \"" + sourceSelfTable + "\" or \"" + sourceLocal + "\" or \"" + sourceGenTable + "\"")
 	}
 }

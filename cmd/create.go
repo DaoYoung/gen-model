@@ -30,8 +30,8 @@ func init() {
 	flagBindviper(createCmd, false, "searchTableName", "gen.searchTableName")
 	flagBindviper(createCmd, false, "jsonUcFirst", "gen.jsonUcFirst")
 	flagBindviper(createCmd, false, "modelSuffix", "gen.modelSuffix")
-	flagBindviper(createCmd, false, "sourceType", "gen.sourceType")
-	flagBindviper(createCmd, false, "persistType", "gen.persistType")
+	flagBindviper(createCmd, false, "source", "gen.source")
+	flagBindviper(createCmd, false, "persist", "gen.persist")
 
 	createCmd.Flags().Bool("debug", false, "true: print full message")
 	flagBindviper(createCmd, false, "debug", "debug")
