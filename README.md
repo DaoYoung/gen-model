@@ -31,8 +31,7 @@ gen-model create --persist=local-mapper
 
 gen-model create --persist=local-mapper -f=true
 ```
-
-![image](https://upload.cc/i1/2020/09/17/u18VsF.gif)
+![image](https://upload.cc/i1/2020/09/17/76h3Ue.gif)
 
 4. rename mapper file from `${struct}FieldMapper.yaml` to `${struct}VOFieldMapper.yaml`, and delete one line after fields
 ```
