@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/DaoYoung/gen-model/handler"
 	"github.com/spf13/cobra"
+	"github.com/victorien-a/gen-model/handler"
 )
 
 // initCmd represents the init command

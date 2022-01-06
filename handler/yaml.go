@@ -52,6 +52,7 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
 	content += "gen:\n"
 	content += "  searchTableName: " + cmdRequest.Gen.SearchTableName + " # support patten with '*'\n"
 	content += "  outDir: " + cmdRequest.Gen.OutDir + " # file path\n"
+	content += "  dumpAllTables: " + strconv.FormatBool(cmdRequest.Gen.DumpAllTables) + " # false: set to true to dump all tables found in DB'\n"
 	content += "  jsonUcFirst: " + strconv.FormatBool(cmdRequest.Gen.JSONUcFirst) + " # true: model json tag use lower camelcase, like 'camelCase', not like 'CamelCase'\n"
 	content += "  modelSuffix: " + cmdRequest.Gen.ModelSuffix + " # model name suffix\n"
 	content += "  source: " + cmdRequest.Gen.Source + " # self-table: struct create by connect mysql tables; local-mapper: struct create by local mappers; db-mapper: struct create by table \"gen_model_mapper\"\n"
