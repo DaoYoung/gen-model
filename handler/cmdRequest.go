@@ -2,13 +2,14 @@ package handler
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/spf13/viper"
 )
 
 // CmdRequest is request arguments manager
@@ -19,11 +20,12 @@ type CmdRequest struct {
 }
 
 type dbConfig struct {
-	Host     string
-	Database string
-	Username string
-	Password string
-	Port     int
+	Host        string
+	Database    string
+	Username    string
+	Password    string
+	Port        int
+	UsePassword bool
 }
 
 type genConfig struct {

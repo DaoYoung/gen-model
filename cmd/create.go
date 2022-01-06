@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"errors"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"log"
 	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // createCmd represents the create command
@@ -47,7 +48,7 @@ func validArgs() error {
 	if viper.GetString("mysql.username") == "" {
 		return errors.New("mysql.username is empty")
 	}
-	if viper.GetString("mysql.password") == "" {
+	if viper.GetString("mysql.password") == "" && viper.GetBool("mysql.usePassword") {
 		return errors.New("mysql.password is empty")
 	}
 	if CmdRequest.Gen.SearchTableName == "" {

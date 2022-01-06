@@ -2,12 +2,13 @@ package handler
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
 
 // YamlFile is config file
@@ -46,6 +47,8 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
 	content += "  port: " + strconv.Itoa(cmdRequest.Db.Port) + "\n"
 	content += "  username: " + cmdRequest.Db.Username + "\n"
 	content += "  password: " + cmdRequest.Db.Password + "\n"
+	content += "  usePassword: " + strconv.FormatBool(cmdRequest.Db.UsePassword) + "\n"
+
 	content += "gen:\n"
 	content += "  searchTableName: " + cmdRequest.Gen.SearchTableName + " # support patten with '*'\n"
 	content += "  outDir: " + cmdRequest.Gen.OutDir + " # file path\n"
