@@ -45,7 +45,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Db.UsePassword, "usePassword", "x", true, "set to use password")
 	rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Password, "password", "w", "", "set DB login password")
 	rootCmd.PersistentFlags().StringVarP(&CmdRequest.Gen.OutDir, "outDir", "o", "./model/", "set your OutDir")
-	rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Gen.DumpAllTables, "dumpAllTables", "all", false, "set to dump all tables found in DB")
+	rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Gen.DumpAllTables, "dumpAllTables", "a", false, "set to dump all tables found in DB")
 
 	flagBindviper(rootCmd, true, "forceCover", "forceCover")
 	flagBindviper(rootCmd, true, "host", "mysql.host")

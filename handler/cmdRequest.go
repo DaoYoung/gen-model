@@ -126,6 +126,8 @@ func (g *CmdRequest) SetDataByViper() {
 	g.Db.Port = viper.GetInt("mysql.port")
 	g.Db.Username = viper.GetString("mysql.username")
 	g.Db.Password = viper.GetString("mysql.password")
+	g.Db.UsePassword = viper.GetBool("mysql.usePassword")
+	g.Gen.DumpAllTables = viper.GetBool("gen.dumpAllTables")
 }
 
 func (g *CmdRequest) selfTable2Struct() {

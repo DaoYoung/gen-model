@@ -1,5 +1,5 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/DaoYoung/gen-model)](https://goreportcard.com/report/github.com/DaoYoung/gen-model)
-[![codecov](https://codecov.io/gh/DaoYoung/gen-model/branch/master/graph/badge.svg)](https://codecov.io/gh/DaoYoung/gen-model)
+[![Go Report Card](https://goreportcard.com/badge/github.com/victorien-a/gen-model)](https://goreportcard.com/report/github.com/victorien-a/gen-model)
+[![codecov](https://codecov.io/gh/victorien-a/gen-model/branch/master/graph/badge.svg)](https://codecov.io/gh/victorien-a/gen-model)
 <!--[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go) -->
 
 # gen-model
