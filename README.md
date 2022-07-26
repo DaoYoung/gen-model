@@ -1,9 +1,7 @@
-[![Build Status](https://travis-ci.com/DaoYoung/gen-model.svg?branch=master)](https://travis-ci.com/DaoYoung/gen-model)
-[![Go Report Card](https://goreportcard.com/badge/github.com/DaoYoung/gen-model)](https://goreportcard.com/report/github.com/DaoYoung/gen-model)
-[![codecov](https://codecov.io/gh/DaoYoung/gen-model/branch/master/graph/badge.svg)](https://codecov.io/gh/DaoYoung/gen-model)
+[![Go Report Card](https://goreportcard.com/badge/github.com/victorien-a/gen-model)](https://goreportcard.com/report/github.com/victorien-a/gen-model)
+[![codecov](https://codecov.io/gh/victorien-a/gen-model/branch/master/graph/badge.svg)](https://codecov.io/gh/victorien-a/gen-model)
 <!--[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go) -->
 
-[中文教程](https://www.jianshu.com/p/0d1d942d281e)
 # gen-model
 ### Features
 * generate struct file by DB tables
@@ -14,7 +12,7 @@
 go get -u github.com/DaoYoung/gen-model
 ```
 ### Usage
-1. run `init` commend, you will see `.gen-model.yaml`
+1. run `init` command, you will see `.gen-model.yaml`
 ```
 cd ${your_project_dir}
 gen-model init

@@ -2,13 +2,14 @@ package handler
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/spf13/viper"
 )
 
 // CmdRequest is request arguments manager
@@ -19,17 +20,18 @@ type CmdRequest struct {
 }
 
 type dbConfig struct {
-	Host     string
-	Database string
-	Username string
-	Password string
-	Port     int
+	Host        string
+	Database    string
+	Username    string
+	Password    string
+	Port        int
+	UsePassword bool
 }
 
 type genConfig struct {
 	SearchTableName string
-
-	OutDir string
+	DumpAllTables   bool
+	OutDir          string
 
 	// true: uppercase first letter in json tag
 	// (default) false: lowercase first letter in json tag
@@ -68,8 +70,12 @@ const (
 )
 
 func (g *CmdRequest) getTables() []string {
-	if strings.Contains(g.Gen.SearchTableName, "*") {
-		return matchTables(g.Db.Database, g.Gen.SearchTableName)
+	if g.Gen.DumpAllTables {
+		return getAllTables(g.Db.Database)
+	} else {
+		if strings.Contains(g.Gen.SearchTableName, "*") {
+			return matchTables(g.Db.Database, g.Gen.SearchTableName)
+		}
 	}
 	return []string{g.Gen.SearchTableName}
 }
@@ -120,6 +126,8 @@ func (g *CmdRequest) SetDataByViper() {
 	g.Db.Port = viper.GetInt("mysql.port")
 	g.Db.Username = viper.GetString("mysql.username")
 	g.Db.Password = viper.GetString("mysql.password")
+	g.Db.UsePassword = viper.GetBool("mysql.usePassword")
+	g.Gen.DumpAllTables = viper.GetBool("gen.dumpAllTables")
 }
 
 func (g *CmdRequest) selfTable2Struct() {

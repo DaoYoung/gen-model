@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" // Register mysql
 	"github.com/spf13/viper"
@@ -102,14 +103,26 @@ func initGenDb() {
 	}
 }
 func connectDb(dbName string) (dbPool *gorm.DB, err error) {
-	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
-		viper.GetString("mysql.username"),
-		viper.GetString("mysql.password"),
-		viper.GetString("mysql.host"),
-		viper.GetInt("mysql.port"),
-		dbName,
-	)
+	var dsn string
+	if viper.GetBool("mysql.usePassword") {
+		dsn = fmt.Sprintf(
+			"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
+			viper.GetString("mysql.username"),
+			viper.GetString("mysql.password"),
+			viper.GetString("mysql.host"),
+			viper.GetInt("mysql.port"),
+			dbName,
+		)
+	} else {
+		dsn = fmt.Sprintf(
+			"%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
+			viper.GetString("mysql.username"),
+			viper.GetString("mysql.host"),
+			viper.GetInt("mysql.port"),
+			dbName,
+		)
+	}
+
 	if dbPool, err = gorm.Open("mysql", dsn); err != nil {
 		return nil, err
 	}

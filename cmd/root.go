@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/DaoYoung/gen-model/handler"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/victorien-a/gen-model/handler"
 )
 
 var cfgFile string
@@ -41,15 +42,21 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Database, "database", "d", "", "set your database")
 	rootCmd.PersistentFlags().IntVarP(&CmdRequest.Db.Port, "port", "p", 3306, "set DB port")
 	rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Username, "username", "u", "root", "set DB login username")
+	rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Db.UsePassword, "usePassword", "x", true, "set to use password")
 	rootCmd.PersistentFlags().StringVarP(&CmdRequest.Db.Password, "password", "w", "", "set DB login password")
 	rootCmd.PersistentFlags().StringVarP(&CmdRequest.Gen.OutDir, "outDir", "o", "./model/", "set your OutDir")
+	rootCmd.PersistentFlags().BoolVarP(&CmdRequest.Gen.DumpAllTables, "dumpAllTables", "a", false, "set to dump all tables found in DB")
+
 	flagBindviper(rootCmd, true, "forceCover", "forceCover")
 	flagBindviper(rootCmd, true, "host", "mysql.host")
 	flagBindviper(rootCmd, true, "database", "mysql.database")
 	flagBindviper(rootCmd, true, "port", "mysql.port")
 	flagBindviper(rootCmd, true, "username", "mysql.username")
 	flagBindviper(rootCmd, true, "password", "mysql.password")
+	flagBindviper(rootCmd, true, "usePassword", "mysql.usePassword")
 	flagBindviper(rootCmd, true, "outDir", "gen.outDir")
+	flagBindviper(rootCmd, true, "dumpAllTables", "gen.dumpAllTables")
+
 	handler.Welcome()
 }
 

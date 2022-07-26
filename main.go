@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/DaoYoung/gen-model/cmd"
+import "github.com/victorien-a/gen-model/cmd"
 
 func main() {
 	cmd.Execute()

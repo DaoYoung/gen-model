@@ -2,12 +2,13 @@ package handler
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
 
 // YamlFile is config file
@@ -46,9 +47,12 @@ func GenConfigYaml(cmdRequest *CmdRequest) {
 	content += "  port: " + strconv.Itoa(cmdRequest.Db.Port) + "\n"
 	content += "  username: " + cmdRequest.Db.Username + "\n"
 	content += "  password: " + cmdRequest.Db.Password + "\n"
+	content += "  usePassword: " + strconv.FormatBool(cmdRequest.Db.UsePassword) + "\n"
+
 	content += "gen:\n"
 	content += "  searchTableName: " + cmdRequest.Gen.SearchTableName + " # support patten with '*'\n"
 	content += "  outDir: " + cmdRequest.Gen.OutDir + " # file path\n"
+	content += "  dumpAllTables: " + strconv.FormatBool(cmdRequest.Gen.DumpAllTables) + " # false: set to true to dump all tables found in DB'\n"
 	content += "  jsonUcFirst: " + strconv.FormatBool(cmdRequest.Gen.JSONUcFirst) + " # true: model json tag use lower camelcase, like 'camelCase', not like 'CamelCase'\n"
 	content += "  modelSuffix: " + cmdRequest.Gen.ModelSuffix + " # model name suffix\n"
 	content += "  source: " + cmdRequest.Gen.Source + " # self-table: struct create by connect mysql tables; local-mapper: struct create by local mappers; db-mapper: struct create by table \"gen_model_mapper\"\n"

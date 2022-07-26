@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"errors"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"log"
 	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // createCmd represents the create command
@@ -25,11 +26,14 @@ func init() {
 	createCmd.Flags().StringVarP(&CmdRequest.Gen.SearchTableName, "searchTableName", "s", "", "set your searchTableName, support patten with '*'")
 	createCmd.Flags().StringVarP(&CmdRequest.Gen.ModelSuffix, "modelSuffix", "m", "", "model suffix")
 	createCmd.Flags().BoolVarP(&CmdRequest.Gen.JSONUcFirst, "jsonUcFirst", "j", true, "true/false")
+	createCmd.Flags().BoolVarP(&CmdRequest.Gen.DumpAllTables, "dumpAllTables", "a", false, "true/false")
+
 	createCmd.Flags().StringVarP(&CmdRequest.Gen.Source, "source", "r", "self-table", "self-table: create struct by self table \nlocal-mapper: create struct by local mapper \ndb-mapper: create struct by stable \"gen_model_mapper\" table")
 	createCmd.Flags().StringVarP(&CmdRequest.Gen.Persist, "persist", "y", "", "local-mapper: save mappers at local files \ndb-mapper: create db table: gen_model.struct_mappers, and save mappers in it ")
 	flagBindviper(createCmd, false, "searchTableName", "gen.searchTableName")
 	flagBindviper(createCmd, false, "jsonUcFirst", "gen.jsonUcFirst")
 	flagBindviper(createCmd, false, "modelSuffix", "gen.modelSuffix")
+	flagBindviper(createCmd, false, "dumpAllTables", "gen.dumpAllTables")
 	flagBindviper(createCmd, false, "source", "gen.source")
 	flagBindviper(createCmd, false, "persist", "gen.persist")
 
@@ -47,7 +51,7 @@ func validArgs() error {
 	if viper.GetString("mysql.username") == "" {
 		return errors.New("mysql.username is empty")
 	}
-	if viper.GetString("mysql.password") == "" {
+	if viper.GetString("mysql.password") == "" && viper.GetBool("mysql.usePassword") {
 		return errors.New("mysql.password is empty")
 	}
 	if CmdRequest.Gen.SearchTableName == "" {

@@ -49,6 +49,15 @@ func matchTables(dbName, tableName string) []string {
 	return names
 }
 
+func getAllTables(dbName string) []string {
+	var names []string
+	columns := &([]SchemaTable{})
+	if err := dbSchema.Where("TABLE_SCHEMA = ?", dbName).Find(columns).Pluck("TABLE_NAME", &names).Error; err != nil {
+		panic(err)
+	}
+	return names
+}
+
 func getOneTableColumns(dbName, tableName string) *[]SchemaColumn {
 	columns := &([]SchemaColumn{})
 	if err := dbSchema.Where("TABLE_SCHEMA = ?", dbName).Where("TABLE_NAME = ?", tableName).Find(columns).Error; err != nil {
